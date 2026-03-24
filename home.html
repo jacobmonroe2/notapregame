@@ -617,9 +617,8 @@ a.btm:hover { opacity:1; }
 
     <!-- SUCCESS -->
     <div class="success-state" id="success">
-      <span class="success-icon">🎉</span>
-      <p class="success-title">You're on the list.</p>
-      <p class="success-body">We'll reach out via text or Instagram<br>with event details closer to the date.</p>
+      <p class="success-title">Request received.</p>
+      <p class="success-body">You'll hear from us if you're selected.</p>
       <span class="success-tag" id="success-tag">General</span>
     </div>
   </div>
@@ -703,9 +702,9 @@ a.btm:hover { opacity:1; }
     const data=collectData(sections.general,'General');
     disableBtn(this);
     submitToSheet(data).then(()=>{
-      showSuccess('General List ✓');
+      showSuccess('General');
     }).catch(()=>{
-      showSuccess('General List ✓');
+      showSuccess('General');
     }).finally(()=>enableBtn(this));
   });
 
@@ -717,9 +716,9 @@ a.btm:hover { opacity:1; }
     const data=collectData(sections.ff,'Friends & Family');
     disableBtn(this);
     submitToSheet(data).then(()=>{
-      showSuccess('Friends & Family ✓');
+      showSuccess('Friends & Family');
     }).catch(()=>{
-      showSuccess('Friends & Family ✓');
+      showSuccess('Friends & Family');
     }).finally(()=>enableBtn(this));
   });
 

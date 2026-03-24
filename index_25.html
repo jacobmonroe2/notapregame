@@ -426,14 +426,21 @@ a.btm:hover { opacity:1; }
     letter-spacing: 0.18em;
   }
 
-  /* Bottom bar — hide everything, dots take over */
+  /* Bottom bar — only show IG icon, above dots */
   .bottom-bar {
+    justify-content: center;
+  }
+  .btm:not(.ig-wrap) {
     display: none;
+  }
+  .ig-wrap svg { width: 26px; height: 26px; }
+  .bottom-bar {
+    margin-bottom: 1.2rem;
   }
 
   /* Dots */
   .dots {
-    bottom: 1.4rem;
+    bottom: 1rem;
   }
 
   /* Modal */
@@ -574,7 +581,6 @@ a.btm:hover { opacity:1; }
         <div class="field"><label>First Name</label><input type="text" placeholder="Jordan"></div>
         <div class="field"><label>Last Name</label><input type="text" placeholder="Smith"></div>
       </div>
-      <div class="field"><label>Email</label><input type="email" placeholder="you@example.com"></div>
       <div class="field"><label>Phone Number</label><input type="tel" placeholder="+1 (212) 000-0000"></div>
       <div class="field"><label>Instagram Handle</label><input type="text" placeholder="@yourhandle"></div>
       <button class="btn-submit" id="submit-general">Request My Spot →</button>
@@ -586,7 +592,6 @@ a.btm:hover { opacity:1; }
         <div class="field"><label>First Name</label><input type="text" placeholder="Jordan"></div>
         <div class="field"><label>Last Name</label><input type="text" placeholder="Smith"></div>
       </div>
-      <div class="field"><label>Email</label><input type="email" placeholder="you@example.com"></div>
       <div class="field"><label>Phone Number</label><input type="tel" placeholder="+1 (212) 000-0000"></div>
       <div class="field"><label>Instagram Handle</label><input type="text" placeholder="@yourhandle"></div>
       <div class="field">

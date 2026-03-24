@@ -364,17 +364,19 @@ a.btm:hover { opacity:1; }
     padding: 1.4rem 1.2rem;
   }
 
-  /* Nav — hide text links, keep CTA */
+  /* Nav — compact centered row */
   .top-nav {
-    justify-content: flex-end;
-    gap: 0.5rem;
+    justify-content: center;
+    gap: 0.7rem;
+    flex-wrap: wrap;
   }
-  .nav-link:not(.cta) {
-    display: none;
+  .nav-link {
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
   }
   .nav-link.cta {
-    padding: 0.35rem 0.6rem;
-    font-size: 0.55rem;
+    padding: 0.3rem 0.55rem;
+    font-size: 0.52rem;
   }
 
   /* Logo */
@@ -424,19 +426,14 @@ a.btm:hover { opacity:1; }
     letter-spacing: 0.18em;
   }
 
-  /* Bottom bar */
+  /* Bottom bar — hide everything, dots take over */
   .bottom-bar {
-    justify-content: center;
-    gap: 1rem;
-  }
-  .btm:not(.ig-wrap) {
     display: none;
   }
-  .ig-wrap svg { width: 30px; height: 30px; }
 
   /* Dots */
   .dots {
-    bottom: 1.2rem;
+    bottom: 1.4rem;
   }
 
   /* Modal */

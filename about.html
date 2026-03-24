@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — The Pregame</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --white: #f0ece3;
+  --yellow: #e8d84a;
+  --dim: rgba(240,236,227,0.42);
+  --border: rgba(240,236,227,0.12);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: #060606;
+  color: var(--white);
+  font-family: 'Syne', sans-serif;
+  cursor: crosshair;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* GRAIN */
+.grain {
+  position: fixed; inset: 0; z-index: 1;
+  pointer-events: none; opacity: 0.45;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)' opacity='0.09'/%3E%3C/svg%3E");
+}
+
+/* NAV */
+.top-nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 50;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 2.2rem 3rem;
+  background: linear-gradient(to bottom, rgba(6,6,6,0.9) 0%, transparent 100%);
+}
+.nav-link {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.152rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--white); text-decoration: none;
+  opacity: 0.48; transition: opacity 0.2s; line-height: 1; cursor: crosshair;
+}
+.nav-link:hover, .nav-link.active { opacity: 1; }
+.nav-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.152rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--white); opacity: 0.48; line-height: 1;
+}
+
+/* ABOUT CONTENT */
+.about-wrap {
+  position: relative; z-index: 10;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 10rem 3rem 6rem;
+}
+
+.about-heading {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 3.6rem;
+  line-height: 1.05;
+  margin-bottom: 2.8rem;
+  color: var(--white);
+}
+
+.about-body p {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.15rem;
+  line-height: 1.75;
+  color: var(--dim);
+  margin-bottom: 1.8rem;
+}
+
+.about-body p strong {
+  color: var(--white);
+  font-style: italic;
+}
+
+.about-body p em {
+  color: var(--white);
+}
+
+/* DIVIDER */
+.about-divider {
+  width: 60px;
+  height: 2px;
+  background: var(--yellow);
+  margin: 3rem 0;
+  opacity: 0.6;
+}
+
+/* FOOTER */
+.about-footer {
+  position: relative; z-index: 10;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 3rem 4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  padding-top: 2rem;
+}
+.footer-link {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--dim); text-decoration: none;
+  transition: color 0.2s; cursor: crosshair;
+}
+.footer-link:hover { color: var(--white); }
+.footer-year {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.85rem; letter-spacing: 0.12em;
+  color: var(--dim);
+}
+
+/* MOBILE */
+@media (max-width: 600px) {
+  .top-nav { padding: 1.2rem 1.5rem; flex-wrap: wrap; gap: 0.4rem; }
+  .nav-link { font-size: 0.75rem; }
+  .nav-title { display: none; }
+  .about-wrap { padding: 7rem 1.5rem 4rem; }
+  .about-heading { font-size: 2.4rem; }
+  .about-body p { font-size: 1rem; }
+  .about-footer { padding: 2rem 1.5rem 3rem; flex-wrap: wrap; gap: 1rem; justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+
+<nav class="top-nav">
+  <a class="nav-link active" href="about.html">About Us</a>
+  <a class="nav-link" href="archive.html">Archive</a>
+  <a class="nav-link" href="#">Newsletter</a>
+  <span class="nav-title">The Pregame</span>
+</nav>
+
+<div class="about-wrap">
+  <h1 class="about-heading">About<br>The Pregame</h1>
+
+  <div class="about-body">
+    <p><strong>The Pregame</strong> is a creative collective that brings people together in unconventional, casual spaces before they go out at night, hence the name, The Pregame. More than just a party, it's a cultural experience &mdash; blending music, community, and visual storytelling.</p>
+
+    <p>Conceived by Che Ewell, Howard DJ <em>"justche,"</em> The Pregame started organically: friends coming together, live DJ sets, and good energy before going out. Now, the goal is to bring that same intimate vibe to unique spaces across the city and beyond.</p>
+
+    <p>Each event is captured through professional videography, showcasing not just the DJs but the spaces themselves &mdash; highlighting their character, atmosphere, and the people who fill them.</p>
+  </div>
+
+  <div class="about-divider"></div>
+</div>
+
+<footer class="about-footer">
+  <a class="footer-link" href="home.html">Home &#8599;</a>
+  <a class="footer-link" href="archive.html">Archive &#8599;</a>
+  <span class="footer-year">2026</span>
+</footer>
+
+</body>
+</html>

@@ -553,7 +553,7 @@ a.btm:hover { opacity:1; }
   </div>
 
   <div class="bottom-bar">
-    <span class="btm muted">2025</span>
+    <span class="btm muted">2026</span>
     <span class="btm muted">Washington, D.C.</span>
     <a class="btm" href="#" id="open-signup-2">Request Guestlist ↗</a>
     <a class="ig-wrap" href="https://instagram.com/notapregame" target="_blank" rel="noopener" aria-label="Instagram">
@@ -629,35 +629,7 @@ a.btm:hover { opacity:1; }
 <script>
 (function(){
 
-  /* SLIDESHOW */
-  const slides = Array.from(document.querySelectorAll('.slide'));
-  const tint = document.getElementById('tint');
-  const dotsEl = document.getElementById('dots');
-  const tints = ['rgba(30,50,110,0.20)','rgba(10,10,30,0.18)','rgba(65,25,75,0.22)','rgba(130,20,10,0.26)','rgba(20,50,40,0.18)'];
-  let cur = 0;
-  slides.forEach((_,i)=>{
-    const d=document.createElement('div');
-    d.className='dot'+(i===0?' on':'');
-    dotsEl.appendChild(d);
-  });
-  const dots=Array.from(dotsEl.querySelectorAll('.dot'));
-  function goTo(idx){
-    slides[cur].classList.remove('active'); dots[cur].classList.remove('on');
-    cur=(idx+slides.length)%slides.length;
-    slides[cur].classList.add('active'); dots[cur].classList.add('on');
-    tint.style.background=tints[cur];
-  }
-  tint.style.background=tints[0];
-  let timer=setInterval(()=>goTo(cur+1),4200);
-  document.addEventListener('click',(e)=>{
-    if(e.target.closest('a')||e.target.closest('button')||e.target.closest('.modal'))return;
-    clearInterval(timer); goTo(cur+1); timer=setInterval(()=>goTo(cur+1),4200);
-  });
-  document.addEventListener('keydown',(e)=>{
-    if(document.getElementById('modal').classList.contains('open'))return;
-    if(e.key==='ArrowRight')goTo(cur+1);
-    if(e.key==='ArrowLeft')goTo(cur-1);
-  });
+  /* VIDEO BG — no slideshow JS needed */
 
   /* MODAL */
   const modal=document.getElementById('modal');

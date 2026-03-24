@@ -664,7 +664,7 @@ a.btm:hover { opacity:1; }
     return ok;
   }
 
-  const SHEET_URL='https://script.google.com/macros/s/AKfycbwsPh9Ko1nAUl_HswWuNQVlyOlXEySKttuuKG3ONOxGksNb4ZeCZrpls4FE4H2OOpQ-GA/exec';
+  const SHEET_URL='https://pregame-signup.jacobmilesmonroe.workers.dev/';
 
   function collectData(formEl,tier){
     const data={tier};
@@ -678,7 +678,6 @@ a.btm:hover { opacity:1; }
   function submitToSheet(data){
     return fetch(SHEET_URL,{
       method:'POST',
-      mode:'no-cors',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify(data)
     });

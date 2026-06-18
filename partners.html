@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Partners — The Pregame</title>
+<meta name="description" content="The Pregame partners with brands that want to be in the room with the right people. Past and current partners, and how to work with us.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --white: #f0ece3;
+  --yellow: #e8d84a;
+  --dim: rgba(240,236,227,0.42);
+  --border: rgba(240,236,227,0.12);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: #060606;
+  color: var(--white);
+  font-family: 'Syne', sans-serif;
+  cursor: crosshair;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* GRAIN */
+.grain {
+  position: fixed; inset: 0; z-index: 1;
+  pointer-events: none; opacity: 0.45;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)' opacity='0.09'/%3E%3C/svg%3E");
+}
+
+/* NAV */
+.top-nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 50;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 2.2rem 3rem;
+  background: linear-gradient(to bottom, rgba(6,6,6,0.9) 0%, transparent 100%);
+}
+.nav-link {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.152rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--white); text-decoration: none;
+  opacity: 0.48; transition: opacity 0.2s; line-height: 1; cursor: crosshair;
+}
+.nav-link:hover, .nav-link.active { opacity: 1; }
+
+/* HERO */
+.hero {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 42vh;
+  padding: 10rem 2rem 3rem;
+  text-align: center;
+  position: relative; z-index: 2;
+}
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(2.8rem, 6vw, 5.5rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin-bottom: 1rem;
+  opacity: 0; animation: fadeIn 1s 0.3s forwards;
+}
+.hero-sub {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--dim);
+  opacity: 0; animation: fadeIn 1s 0.6s forwards;
+}
+
+/* PARTNERS GRID */
+.partners-wrap {
+  position: relative; z-index: 2;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem 3rem 4rem;
+}
+.partner-group { margin-bottom: 3.5rem; }
+.group-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem; letter-spacing: 0.28em; text-transform: uppercase;
+  color: rgba(240,236,227,0.35);
+  padding-bottom: 1.2rem;
+  margin-bottom: 1.8rem;
+  border-bottom: 1px solid var(--border);
+}
+.logo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 1rem;
+}
+.logo-cell {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 130px;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  transition: border-color 0.3s, background 0.3s;
+}
+.logo-cell:hover { border-color: rgba(240,236,227,0.28); background: rgba(240,236,227,0.02); }
+.logo-cell img {
+  max-width: 100%; max-height: 64px;
+  object-fit: contain;
+  filter: grayscale(1) brightness(1.6);
+  opacity: 0.7;
+  transition: filter 0.3s, opacity 0.3s;
+}
+.logo-cell:hover img { filter: grayscale(0); opacity: 1; }
+/* Wordmark placeholder shown until a real logo image is supplied in config */
+.logo-wordmark {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.4rem;
+  letter-spacing: 0.01em;
+  color: rgba(240,236,227,0.62);
+  text-align: center;
+  transition: color 0.3s;
+}
+.logo-cell:hover .logo-wordmark { color: var(--white); }
+
+/* WORK WITH US */
+.work-wrap {
+  position: relative; z-index: 2;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3.5rem 3rem 5rem;
+  border-top: 1px solid var(--border);
+}
+.work-inner { max-width: 640px; }
+.work-heading {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.05;
+  margin-bottom: 1.4rem;
+}
+.work-body {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.15rem;
+  line-height: 1.7;
+  color: var(--dim);
+  margin-bottom: 2.2rem;
+}
+.work-cta-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.work-cta {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+  text-decoration: none; cursor: crosshair;
+  padding: 0.95rem 2rem;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, letter-spacing 0.2s;
+}
+.work-cta.primary {
+  background: var(--yellow); color: #060606; font-weight: 700;
+}
+.work-cta.primary:hover { background: #f5eb60; letter-spacing: 0.24em; }
+.work-cta.secondary {
+  color: var(--white); border: 1px solid rgba(240,236,227,0.28);
+}
+.work-cta.secondary:hover { border-color: var(--white); background: rgba(240,236,227,0.04); }
+
+/* FOOTER */
+.page-footer {
+  position: relative; z-index: 2;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 3rem 3rem;
+  display: flex; justify-content: space-between; align-items: center;
+  border-top: 1px solid var(--border);
+}
+.footer-year {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.152rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--white); opacity: 0.22;
+}
+.ig-wrap {
+  opacity: 0.9; transition: opacity 0.2s;
+  display: flex; align-items: center;
+  color: var(--white); text-decoration: none; cursor: crosshair;
+}
+.ig-wrap:hover { opacity: 1; }
+.ig-wrap svg { width: 40px; height: 40px; display: block; }
+
+@keyframes fadeIn { to { opacity: 1; } }
+
+@media (max-width: 700px) {
+  .top-nav { padding: 1.5rem 1.5rem; gap: 0.8rem; flex-wrap: wrap; justify-content: center; }
+  .nav-link { font-size: 0.7rem; }
+  .hero { padding: 8rem 1.5rem 2rem; min-height: 32vh; }
+  .partners-wrap { padding: 1rem 1.5rem 3rem; }
+  .logo-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.8rem; }
+  .logo-cell { min-height: 104px; padding: 1.1rem; }
+  .logo-wordmark { font-size: 1.15rem; }
+  .work-wrap { padding: 3rem 1.5rem 4rem; }
+  .work-body { font-size: 1rem; }
+  .work-cta-row { flex-direction: column; }
+  .work-cta { text-align: center; }
+  .page-footer { padding: 2rem 1.5rem 3rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+
+<nav class="top-nav">
+  <a class="nav-link" href="about.html">About Us</a>
+  <a class="nav-link" href="archive.html">Archive</a>
+  <a class="nav-link active" href="partners.html">Partners</a>
+  <a class="nav-link" href="home.html">Home</a>
+</nav>
+
+<section class="hero">
+  <h1>Partners</h1>
+  <p class="hero-sub">Brands we've worked with</p>
+</section>
+
+<!-- PARTNERS LOGO GRID (rendered from the CMS-editable config in the script below) -->
+<section class="partners-wrap">
+  <div class="partner-group" id="group-current">
+    <p class="group-label">Current</p>
+    <div class="logo-grid" id="grid-current"></div>
+  </div>
+  <div class="partner-group" id="group-past">
+    <p class="group-label">Past</p>
+    <div class="logo-grid" id="grid-past"></div>
+  </div>
+</section>
+
+<!-- WORK WITH US -->
+<section class="work-wrap">
+  <div class="work-inner">
+    <h2 class="work-heading">Work With Us</h2>
+    <p class="work-body">We work with brands that want to be in the room with the right people. Reach out to discuss sponsorship and activation opportunities.</p>
+    <div class="work-cta-row">
+      <a class="work-cta primary" href="mailto:che@notapregame.com?subject=Partnership%20Inquiry%20%E2%80%94%20The%20Pregame">Email Us</a>
+      <a class="work-cta secondary" href="https://instagram.com/notapregame" target="_blank" rel="noopener">DM on Instagram</a>
+    </div>
+  </div>
+</section>
+
+<footer class="page-footer">
+  <span class="footer-year">2026</span>
+  <a class="ig-wrap" href="https://instagram.com/notapregame" target="_blank" rel="noopener" aria-label="Instagram">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="2" width="20" height="20" rx="5"/>
+      <circle cx="12" cy="12" r="5"/>
+      <circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/>
+    </svg>
+  </a>
+</footer>
+
+<script>
+(function(){
+  /* ────────────────────────────────────────────────────────────
+     PARTNERS — team-editable. Add/remove brands here; no markup
+     edits needed. (Static-site stand-in for a CMS: edit + redeploy.)
+
+     To show a real logo instead of the text wordmark, drop the file
+     in a /partners/ folder and set its path, e.g.:
+        { name: 'SQUIRE', logo: 'partners/squire.svg' }
+     Leave logo:'' to fall back to the styled text wordmark.
+     ──────────────────────────────────────────────────────────── */
+  const PARTNERS = {
+    current: [
+      { name: 'SQUIRE', logo: '' },
+      { name: 'BUJI Matcha', logo: '' }
+    ],
+    past: [
+      { name: '818 Tequila', logo: '' },
+      { name: 'Yatts', logo: '' }
+    ]
+  };
+
+  function esc(str){
+    return String(str).replace(/[&<>"]/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c];
+    });
+  }
+
+  function renderGroup(groupId, gridId, items){
+    const group = document.getElementById(groupId);
+    const grid = document.getElementById(gridId);
+    if(!grid || !group) return;
+    if(!items || !items.length){ group.style.display = 'none'; return; }
+    grid.innerHTML = items.map(function(p){
+      const inner = p.logo
+        ? '<img src="' + esc(p.logo) + '" alt="' + esc(p.name) + '">'
+        : '<span class="logo-wordmark">' + esc(p.name) + '</span>';
+      return '<div class="logo-cell" title="' + esc(p.name) + '">' + inner + '</div>';
+    }).join('');
+  }
+
+  renderGroup('group-current', 'grid-current', PARTNERS.current);
+  renderGroup('group-past', 'grid-past', PARTNERS.past);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+# Pages CMS configuration — https://pagescms.org
+# Defines the no-code editing UI for The Pregame. The team edits the
+# content/*.json files through a web form; Pages CMS commits the change
+# to GitHub, and Vercel redeploys automatically. No code changes needed.
+
+media:
+  - name: photos
+    label: Event photos
+    input: photos
+    output: /photos
+    extensions: [jpg, jpeg, png, webp]
+  - name: partners
+    label: Partner logos
+    input: partners
+    output: /partners
+    extensions: [svg, png, jpg, jpeg, webp]
+
+content:
+  # ---- Homepage: upcoming event, city ticker, Coming Soon ----
+  - name: home
+    label: Homepage
+    type: file
+    path: content/home.json
+    format: json
+    fields:
+      - name: event
+        label: Upcoming event
+        type: object
+        description: When an event is live, turn it on and fill in the details. When off, the homepage shows "The Next One Is Coming".
+        fields:
+          - { name: active, label: Event is live?, type: boolean, default: false }
+          - { name: city, label: City, type: string }
+          - { name: date, label: Date (e.g. July 18), type: string }
+          - { name: venue, label: Venue (optional), type: string }
+      - name: operatingCities
+        label: City ticker (cities you operate in)
+        type: string
+        list: true
+      - name: expansionCities
+        label: Coming Soon cities
+        type: string
+        list: true
+        description: Teaser cities shown on the homepage. Remove one once its event is announced above.
+
+  # ---- Partners: logo grid on the Partners page ----
+  - name: partners
+    label: Partners
+    type: file
+    path: content/partners.json
+    format: json
+    fields:
+      - name: current
+        label: Current partners
+        type: object
+        list: true
+        fields:
+          - { name: name, label: Brand name, type: string }
+          - { name: logo, label: Logo image (optional), type: image, options: { media: partners }, description: "Leave empty to show the brand name as text." }
+      - name: past
+        label: Past partners
+        type: object
+        list: true
+        fields:
+          - { name: name, label: Brand name, type: string }
+          - { name: logo, label: Logo image (optional), type: image, options: { media: partners } }
+
+  # ---- Archive: events, photos, and blurbs ----
+  - name: archive
+    label: Archive events
+    type: file
+    path: content/archive.json
+    format: json
+    fields:
+      - name: events
+        label: Events
+        type: object
+        list: true
+        fields:
+          - { name: id, label: ID (lowercase, no spaces, unique), type: string }
+          - { name: name, label: Venue / event name, type: string }
+          - { name: volume, label: Volume (e.g. Vol. 04), type: string }
+          - { name: date, label: Date (e.g. June 2026), type: string }
+          - { name: blurb, label: Blurb (1–2 sentences), type: text }
+          - { name: thumb, label: Thumbnail image, type: image, options: { media: photos } }
+          - { name: photos, label: Gallery photos (aim for 8–12), type: image, list: true, options: { media: photos } }

@@ -1,0 +1,10 @@
+{
+  "event": {
+    "active": false,
+    "city": "",
+    "date": "",
+    "venue": ""
+  },
+  "operatingCities": ["Washington, D.C.", "Philadelphia"],
+  "expansionCities": ["New York", "Atlanta", "Los Angeles"]
+}

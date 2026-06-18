@@ -266,25 +266,15 @@ body {
 <script>
 (function(){
   /* ────────────────────────────────────────────────────────────
-     PARTNERS — team-editable. Add/remove brands here; no markup
-     edits needed. (Static-site stand-in for a CMS: edit + redeploy.)
+     PARTNERS — loaded from content/partners.json, edited by the team
+     through the CMS (no code changes). To show a logo image, upload it
+     via the CMS or drop it in /partners/ and set the entry's `logo`.
 
      To show a real logo instead of the text wordmark, drop the file
      in a /partners/ folder and set its path, e.g.:
         { name: 'SQUIRE', logo: 'partners/squire.svg' }
      Leave logo:'' to fall back to the styled text wordmark.
      ──────────────────────────────────────────────────────────── */
-  const PARTNERS = {
-    current: [
-      { name: 'SQUIRE', logo: '' },
-      { name: 'BUJI Matcha', logo: '' }
-    ],
-    past: [
-      { name: '818 Tequila', logo: '' },
-      { name: 'Yatts', logo: '' }
-    ]
-  };
-
   function esc(str){
     return String(str).replace(/[&<>"]/g, function(c){
       return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c];
@@ -304,8 +294,18 @@ body {
     }).join('');
   }
 
-  renderGroup('group-current', 'grid-current', PARTNERS.current);
-  renderGroup('group-past', 'grid-past', PARTNERS.past);
+  fetch('content/partners.json')
+    .then(function(r){ return r.json(); })
+    .then(function(PARTNERS){
+      renderGroup('group-current', 'grid-current', PARTNERS.current);
+      renderGroup('group-past', 'grid-past', PARTNERS.past);
+    })
+    .catch(function(){
+      var gc = document.getElementById('group-current');
+      var gp = document.getElementById('group-past');
+      if (gc) gc.style.display = 'none';
+      if (gp) gp.style.display = 'none';
+    });
 })();
 </script>
 </body>

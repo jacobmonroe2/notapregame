@@ -46,6 +46,8 @@ body { background:#060606; color:var(--white); font-family:'Syne',sans-serif; mi
 .bar { display:flex; flex-wrap:wrap; gap:1rem; align-items:center; justify-content:space-between; margin-bottom:1rem; }
 .bar h1 { font-family:'Syne'; font-weight:800; font-size:1.5rem; }
 .bar .count { font-family:'Space Mono',monospace; font-size:0.6rem; letter-spacing:0.16em; text-transform:uppercase; color:var(--dim); margin-left:0.6rem; }
+.back-site { display:inline-block; font-family:'Space Mono',monospace; font-size:0.55rem; letter-spacing:0.16em; text-transform:uppercase; color:var(--dim); text-decoration:none; margin-bottom:0.4rem; transition:color .2s; }
+.back-site:hover { color:var(--white); }
 .controls { display:flex; flex-wrap:wrap; gap:0.6rem; align-items:center; }
 
 /* batch bar */
@@ -102,13 +104,17 @@ td.tier-ff { color:var(--yellow); }
     </div>
     <button class="go" id="enter">Enter</button>
     <div class="err" id="err"></div>
+    <a class="back-site" href="/" style="margin-top:1.4rem;">← Back to site</a>
   </div>
 </div>
 
 <!-- APP -->
 <div class="app" id="app">
   <div class="bar">
-    <div><h1>Guest List<span class="count" id="count"></span></h1></div>
+    <div>
+      <a class="back-site" href="/">← Back to site</a>
+      <h1>Guest List<span class="count" id="count"></span></h1>
+    </div>
     <div class="controls">
       <input class="ctl" id="search" type="text" placeholder="Search…">
       <select class="ctl" id="tier"><option value="">All tiers</option></select>

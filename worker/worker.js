@@ -70,7 +70,7 @@ async function sendConfirmation(env, data) {
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) return;
   const first = String((data && data["First Name"]) || "").trim();
   const hi = first ? "Hey " + first + "," : "Hey,";
-  const from = env.EMAIL_FROM || "The Pregame <onboarding@resend.dev>";
+  const from = env.EMAIL_FROM || "The Pregame <invite@notapregame.com>";
   const text = hi + "\n\nThanks for requesting a spot on The Pregame guest list. " +
     "The Pregame is invite-only — every request is reviewed before confirmation. " +
     "If you're in, we'll reach out with the details.\n\n— The Pregame\ninstagram.com/notapregame";

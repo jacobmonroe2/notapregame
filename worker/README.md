@@ -52,5 +52,5 @@ submissions keep working before you set this up.
    can send from `onboarding@resend.dev` to your *own* email without verifying.)
 3. In the Worker → **Settings → Variables and Secrets**, add:
    - `RESEND_API_KEY` — your Resend key (tick **Encrypt**)
-   - `EMAIL_FROM` — e.g. `The Pregame <hello@notapregame.com>` (must be on the verified domain)
+   - `EMAIL_FROM` — e.g. `The Pregame <invite@notapregame.com>` (must be on the verified domain)
 4. **Deploy.** New submissions now get a branded confirmation email.

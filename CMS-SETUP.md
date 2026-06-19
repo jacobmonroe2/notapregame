@@ -17,6 +17,7 @@ live site automatically (usually within a minute).
 | Partners page | Subtitle, current & past partner logos | `content/partners.json` |
 | Partners page | "Work With Us" — copy, sponsorship email, button labels | `content/partners.json` |
 | Archive page | Events — name, volume, date, blurb, thumbnail, photos | `content/archive.json` |
+| Event detail page | Guest count, full write-up, Highlights / Team / Sponsors | `content/archive.json` |
 
 ## One-time setup (≈ 5 minutes)
 

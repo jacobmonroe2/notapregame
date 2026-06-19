@@ -112,5 +112,21 @@ content:
           - { name: volume, label: Volume (e.g. Vol. 04), type: string }
           - { name: date, label: Date (e.g. June 2026), type: string }
           - { name: blurb, label: Blurb (1–2 sentences), type: text }
+          - { name: guests, label: Guest count (e.g. 31 guests), type: string }
+          - name: writeup
+            label: Write-up (full description — blank line between paragraphs)
+            type: text
           - { name: thumb, label: Thumbnail image, type: image, options: { media: photos } }
           - { name: photos, label: Gallery photos (aim for 8–12), type: image, list: true, options: { media: photos } }
+          - name: highlights
+            label: Highlights (one per line, e.g. "Name — Role")
+            type: string
+            list: true
+          - name: team
+            label: Team / credits (one per line)
+            type: string
+            list: true
+          - name: sponsors
+            label: Sponsors (one per line)
+            type: string
+            list: true

@@ -74,15 +74,22 @@ async function sendConfirmation(env, data) {
   const text = hi + "\n\nThanks for requesting a spot on The Pregame guest list. " +
     "The Pregame is invite-only — every request is reviewed before confirmation. " +
     "If you're in, we'll reach out with the details.\n\n— The Pregame\ninstagram.com/notapregame";
-  const html = '<!doctype html><html><body style="margin:0;background:#060606;font-family:Arial,Helvetica,sans-serif;">' +
+  const html = '<!doctype html><html><head><meta charset="utf-8"></head><body style="margin:0;background:#060606;font-family:Arial,Helvetica,sans-serif;">' +
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#060606;padding:32px 16px;"><tr><td align="center">' +
     '<table role="presentation" cellpadding="0" cellspacing="0" style="max-width:480px;width:100%;background:#0e0e0e;border:1px solid rgba(240,236,227,0.12);"><tr><td style="padding:32px;">' +
     '<div style="height:3px;width:42px;background:#e8d84a;margin-bottom:24px;"></div>' +
     '<p style="font-size:16px;line-height:1.6;margin:0 0 16px;color:#f0ece3;">' + hi + '</p>' +
     '<p style="font-size:15px;line-height:1.7;margin:0 0 16px;color:rgba(240,236,227,0.78);">Thanks for requesting a spot on <strong style="color:#f0ece3;">The Pregame</strong> guest list.</p>' +
-    '<p style="font-size:15px;line-height:1.7;margin:0 0 16px;color:rgba(240,236,227,0.78);">The Pregame is invite-only — every request is reviewed before confirmation. If you\'re in, we\'ll reach out with the details.</p>' +
-    '<p style="font-size:12px;letter-spacing:1.5px;text-transform:uppercase;margin:28px 0 0;color:rgba(240,236,227,0.5);">— The Pregame</p>' +
+    '<p style="font-size:15px;line-height:1.7;margin:0 0 16px;color:rgba(240,236,227,0.78);">The Pregame is invite-only &mdash; every request is reviewed before confirmation. If you\'re in, we\'ll reach out with the details.</p>' +
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:28px;"><tr>' +
+    '<td style="vertical-align:bottom;">' +
+    '<p style="font-size:12px;letter-spacing:1.5px;text-transform:uppercase;margin:0;color:rgba(240,236,227,0.5);">&mdash; The Pregame</p>' +
     '<p style="margin:8px 0 0;"><a href="https://instagram.com/notapregame" style="color:#e8d84a;text-decoration:none;font-size:13px;">@notapregame</a></p>' +
+    '</td>' +
+    '<td align="right" style="vertical-align:bottom;width:88px;">' +
+    '<img src="https://www.notapregame.com/logo.png" alt="The Pregame" width="76" style="display:block;width:76px;height:auto;">' +
+    '</td>' +
+    '</tr></table>' +
     '</td></tr></table></td></tr></table></body></html>';
   await fetch("https://api.resend.com/emails", {
     method: "POST",

@@ -11,13 +11,24 @@
  *   - Plain variable (opt.):   ALLOW_ORIGIN   (defaults to https://notapregame.com)
  */
 
-const DEFAULT_ORIGIN = "https://notapregame.com";
+// Origins allowed to call this Worker from the browser (the site uses www).
+const ALLOWED_ORIGINS = [
+  "https://notapregame.com",
+  "https://www.notapregame.com",
+];
 
-function cors(env) {
+function cors(request, env) {
+  const origin = request.headers.get("Origin") || "";
+  // env.ALLOW_ORIGIN (comma-separated) overrides the list above if set
+  const allowed = (env && env.ALLOW_ORIGIN)
+    ? env.ALLOW_ORIGIN.split(",").map((s) => s.trim())
+    : ALLOWED_ORIGINS;
+  const allow = allowed.includes(origin) ? origin : allowed[0];
   return {
-    "Access-Control-Allow-Origin": (env && env.ALLOW_ORIGIN) || DEFAULT_ORIGIN,
+    "Access-Control-Allow-Origin": allow,
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Vary": "Origin",
   };
 }
 
@@ -31,7 +42,7 @@ function json(body, status, headers) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    const headers = cors(env);
+    const headers = cors(request, env);
 
     // CORS preflight
     if (request.method === "OPTIONS") {

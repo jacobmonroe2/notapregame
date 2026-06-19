@@ -54,18 +54,12 @@ body {
   opacity: 0.48; transition: opacity 0.2s; line-height: 1; cursor: crosshair;
 }
 .nav-link:hover, .nav-link.active { opacity: 1; }
-.nav-title {
-  font-family: 'Space Mono', monospace;
-  font-size: 1.152rem; letter-spacing: 0.16em; text-transform: uppercase;
-  color: var(--white); opacity: 0.48; line-height: 1;
-}
 
 /* HERO */
 .hero {
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  min-height: 50vh;
-  padding: 10rem 2rem 4rem;
+  padding: 9rem 2rem 1.5rem;
   text-align: center;
   position: relative; z-index: 2;
 }
@@ -75,155 +69,149 @@ body {
   font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.05;
-  margin-bottom: 1rem;
+  margin-bottom: 0.9rem;
   opacity: 0; animation: fadeIn 1s 0.3s forwards;
 }
-.hero-sub {
+.hero-hint {
   font-family: 'Space Mono', monospace;
-  font-size: 0.7rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--dim);
+  font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase;
+  color: rgba(240,236,227,0.35);
   opacity: 0; animation: fadeIn 1s 0.6s forwards;
 }
 
-/* EVENT CARDS */
-.events-wrap {
+/* ── CAROUSEL ── */
+.archive-stage {
   position: relative; z-index: 2;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 3rem 4rem;
+  margin-top: 1.5rem;
+  opacity: 0; animation: fadeIn 1s 0.8s forwards;
 }
 
-.event-card {
-  border: 1px solid var(--border);
-  margin-bottom: 1.5rem;
-  transition: border-color 0.3s;
+/* edge fades hint that the rail keeps going */
+.archive-stage::before,
+.archive-stage::after {
+  content: ''; position: absolute; top: 0; bottom: 0; width: 4vw; max-width: 56px;
+  z-index: 3; pointer-events: none;
 }
-.event-card:hover { border-color: rgba(240,236,227,0.25); }
+.archive-stage::before { left: 0;  background: linear-gradient(to right, #060606 0%, transparent 100%); }
+.archive-stage::after  { right: 0; background: linear-gradient(to left,  #060606 0%, transparent 100%); }
 
-.event-header {
+.archive-rail {
   display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 1.2rem 2.5rem;
+  gap: 1.4rem;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  padding: 1.5rem clamp(1.5rem, 6vw, 5rem) 2rem;
+  scrollbar-width: none;
+}
+.archive-rail::-webkit-scrollbar { display: none; }
+.archive-rail.dragging { scroll-snap-type: none; cursor: grabbing; }
+
+.tile {
+  flex: 0 0 auto;
+  width: clamp(260px, 30vw, 380px);
+  scroll-snap-align: start;
+  position: relative;
+  border: 1px solid var(--border);
+  background: #0b0b0b;
   cursor: crosshair;
-  transition: background 0.3s;
+  transition: border-color .35s ease, transform .35s ease;
+  outline: none;
 }
-.event-header:hover { background: rgba(240,236,227,0.03); }
+.tile:hover, .tile:focus-visible { border-color: rgba(240,236,227,0.32); transform: translateY(-6px); }
 
-.event-thumb {
-  width: 100px; height: 68px;
-  object-fit: cover;
-  border-radius: 4px;
-  opacity: 0.8;
-  transition: opacity 0.3s;
-  flex-shrink: 0;
+.tile-poster {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
 }
-.event-header:hover .event-thumb { opacity: 1; }
+.tile-poster img {
+  width: 100%; height: 100%; object-fit: cover;
+  filter: grayscale(0.25) contrast(1.05);
+  transition: transform .7s ease, filter .6s ease;
+}
+.tile:hover .tile-poster img { transform: scale(1.06); filter: grayscale(0) contrast(1.08); }
+.tile-poster::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(6,6,6,0.95) 0%, rgba(6,6,6,0.6) 36%, rgba(6,6,6,0.08) 66%, transparent 82%);
+}
 
-.event-info { display: flex; flex-direction: column; gap: 0.4rem; flex:1; }
-
-.event-photo-count {
+.tile-num {
+  position: absolute; top: 0.75rem; left: 0.8rem; z-index: 2;
   font-family: 'Space Mono', monospace;
-  font-size: 0.55rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgba(240,236,227,0.25);
+  font-size: 0.6rem; letter-spacing: 0.14em;
+  color: var(--white);
+  background: rgba(6,6,6,0.5);
+  border: 1px solid rgba(240,236,227,0.18);
+  padding: 0.2rem 0.45rem;
 }
+.tile-view {
+  position: absolute; top: 0.75rem; right: 0.8rem; z-index: 2;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.55rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: #060606; background: var(--yellow);
+  padding: 0.22rem 0.5rem;
+  opacity: 0; transform: translateY(-4px);
+  transition: opacity .3s ease, transform .3s ease;
+}
+.tile:hover .tile-view, .tile:focus-visible .tile-view { opacity: 1; transform: translateY(0); }
 
-.event-name {
-  font-family: 'Syne', sans-serif;
-  font-size: 1.6rem;
-  font-weight: 700;
+.tile-meta {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+  padding: 1rem 1.1rem 1.1rem;
+}
+.tile-name {
+  display: block;
+  font-family: 'Syne', sans-serif; font-weight: 700;
+  font-size: 1.18rem; line-height: 1.1;
   color: var(--white);
 }
-
-.event-meta {
+.tile-sub {
+  display: block; margin-top: 0.5rem;
   font-family: 'Space Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--dim);
+  font-size: 0.52rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: rgba(240,236,227,0.6);
 }
-
-.event-blurb {
-  font-family: 'Syne', sans-serif;
-  font-size: 0.92rem;
-  line-height: 1.55;
-  color: rgba(240,236,227,0.55);
-  max-width: 52ch;
-  margin-top: 0.15rem;
-}
-
-.event-arrow {
-  font-family: 'Syne', sans-serif;
-  font-size: 1.6rem;
-  color: var(--dim);
-  transition: transform 0.4s, color 0.3s;
-}
-.event-card.open .event-arrow {
-  transform: rotate(90deg);
-  color: var(--yellow);
-}
-
-/* GALLERY (hidden by default) */
-.event-gallery {
-  max-height: 0;
+.tile-blurb {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  transition: max-height 0.6s ease;
-}
-.event-card.open .event-gallery {
-  max-height: 20000px;
-}
-
-.gallery-grid {
-  column-count: 3;
-  column-gap: 1rem;
-  padding: 0 2.5rem 2.5rem;
+  margin-top: 0.55rem;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.78rem; line-height: 1.4;
+  color: rgba(240,236,227,0.72);
 }
 
-.gallery-item {
-  position: relative;
-  overflow: hidden;
+/* arrow controls (desktop) */
+.rail-btn {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  z-index: 4;
+  width: 46px; height: 46px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(11,11,11,0.7);
+  border: 1px solid var(--border);
+  color: var(--white);
+  font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800;
   cursor: crosshair;
-  opacity: 0;
-  transform: translateY(20px);
-  break-inside: avoid;
-  margin-bottom: 1rem;
+  transition: background .2s, border-color .2s, opacity .2s;
+  backdrop-filter: blur(4px);
 }
-.event-card.open .gallery-item {
-  animation: revealUp 0.6s forwards;
-}
-.event-card.open .gallery-item:nth-child(1) { animation-delay: 0.1s; }
-.event-card.open .gallery-item:nth-child(2) { animation-delay: 0.2s; }
-.event-card.open .gallery-item:nth-child(3) { animation-delay: 0.3s; }
-.event-card.open .gallery-item:nth-child(4) { animation-delay: 0.4s; }
-.event-card.open .gallery-item:nth-child(5) { animation-delay: 0.5s; }
+.rail-btn:hover { background: rgba(20,20,20,0.95); border-color: rgba(240,236,227,0.4); }
+.rail-btn.prev { left: clamp(0.5rem, 3vw, 2rem); }
+.rail-btn.next { right: clamp(0.5rem, 3vw, 2rem); }
+.rail-btn[disabled] { opacity: 0.2; pointer-events: none; }
 
-.gallery-item img {
-  width: 100%;
-  display: block;
-  filter: grayscale(0.15) contrast(1.05);
-  transition: transform 0.6s ease, filter 0.6s ease;
+.archive-empty {
+  text-align: center; color: var(--dim);
+  font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.2em;
+  padding: 4rem 1rem;
 }
-.gallery-item:hover img {
-  transform: scale(1.04);
-  filter: grayscale(0) contrast(1.1);
-}
-.gallery-item::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(to top, rgba(6,6,6,0.4) 0%, transparent 50%);
-  pointer-events: none;
-  transition: opacity 0.4s;
-}
-.gallery-item:hover::after { opacity: 0.3; }
 
 /* LIGHTBOX */
 .lightbox {
   position: fixed; inset: 0; z-index: 200;
-  background: rgba(0,0,0,0.92);
+  background: rgba(0,0,0,0.94);
   backdrop-filter: blur(16px);
   display: flex; align-items: center; justify-content: center;
   opacity: 0; pointer-events: none;
@@ -232,7 +220,7 @@ body {
 }
 .lightbox.open { opacity: 1; pointer-events: all; }
 .lightbox img {
-  max-width: 90vw; max-height: 88vh;
+  max-width: 90vw; max-height: 84vh;
   object-fit: contain;
   border: 1px solid rgba(240,236,227,0.06);
   transform: scale(0.95);
@@ -258,29 +246,26 @@ body {
 .lightbox-nav:hover { color: var(--white); }
 .lightbox-prev { left: 1.5rem; }
 .lightbox-next { right: 1.5rem; }
-.lightbox-counter {
+.lightbox-caption {
   position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+  text-align: center;
   font-family: 'Space Mono', monospace;
   font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase;
-  color: rgba(240,236,227,0.3);
+  color: rgba(240,236,227,0.5);
+  display: flex; flex-direction: column; gap: 0.4rem;
+  width: 90vw;
 }
+.lightbox-caption .lb-name { color: var(--white); letter-spacing: 0.16em; }
 
 /* FOOTER */
 .archive-footer {
   position: relative; z-index: 2;
   display: flex; justify-content: space-between; align-items: center;
-  padding: 2rem 3rem 3rem;
+  padding: 1.5rem 3rem 2.5rem;
   border-top: 1px solid var(--border);
   max-width: 1400px;
-  margin: 0 auto;
+  margin: 2rem auto 0;
 }
-.footer-link {
-  font-family: 'Space Mono', monospace;
-  font-size: 1.152rem; letter-spacing: 0.16em; text-transform: uppercase;
-  color: var(--white); text-decoration: none;
-  opacity: 0.42; transition: opacity 0.2s; cursor: crosshair;
-}
-.footer-link:hover { opacity: 1; }
 .footer-muted {
   font-family: 'Space Mono', monospace;
   font-size: 1.152rem; letter-spacing: 0.16em; text-transform: uppercase;
@@ -296,22 +281,20 @@ body {
 .ig-wrap svg { width: 40px; height: 40px; display: block; }
 
 @keyframes fadeIn { to { opacity: 1; } }
-@keyframes revealUp { to { opacity: 1; transform: translateY(0); } }
 
 @media (max-width: 700px) {
   .top-nav { padding: 1.5rem 1.5rem; gap: 0.8rem; flex-wrap: wrap; justify-content: center; }
-  .nav-link, .nav-title { font-size: 0.7rem; }
-  .hero { padding: 8rem 1.5rem 3rem; min-height: 35vh; }
-  .events-wrap { padding: 0 1rem 3rem; }
-  .event-header { padding: 1rem 1.5rem; gap: 1rem; }
-  .event-thumb { width: 70px; height: 48px; }
-  .event-name { font-size: 1.2rem; }
-  .event-blurb { font-size: 0.82rem; max-width: none; }
-  .gallery-grid { column-count: 1; padding: 0 1.5rem 1.5rem; }
-  .archive-footer { padding: 2rem 1.5rem; flex-wrap: wrap; gap: 1rem; justify-content: center; }
+  .nav-link { font-size: 0.7rem; }
+  .hero { padding: 7.5rem 1.5rem 1rem; }
+  .archive-rail { gap: 1rem; padding: 1.2rem 1.5rem 1.6rem; }
+  .tile { width: 74vw; }
+  .rail-btn { display: none; }            /* swipe is natural on touch */
+  .archive-stage::before, .archive-stage::after { width: 1.5rem; }
+  .archive-footer { padding: 1.5rem 1.5rem 2.5rem; }
   .lightbox-nav { font-size: 1.4rem; }
   .lightbox-prev { left: 0.5rem; }
   .lightbox-next { right: 0.5rem; }
+  .lightbox-close { top: 1.2rem; right: 1.2rem; }
 }
 </style>
 </head>
@@ -328,9 +311,14 @@ body {
 
 <section class="hero">
   <h1>Archive</h1>
+  <p class="hero-hint">[ Swipe through the editions ]</p>
 </section>
 
-<div class="events-wrap" id="events-wrap"></div>
+<div class="archive-stage">
+  <button class="rail-btn prev" id="rail-prev" aria-label="Previous">&#8592;</button>
+  <div class="archive-rail" id="archive-rail"></div>
+  <button class="rail-btn next" id="rail-next" aria-label="Next">&#8594;</button>
+</div>
 
 <div class="archive-footer">
   <span class="footer-muted">2026</span>
@@ -349,95 +337,143 @@ body {
   <button class="lightbox-nav lightbox-prev" onclick="navLightbox(-1)">&#8592;</button>
   <img id="lightbox-img" src="" alt="Photo">
   <button class="lightbox-nav lightbox-next" onclick="navLightbox(1)">&#8594;</button>
-  <span class="lightbox-counter" id="lightbox-counter"></span>
+  <div class="lightbox-caption">
+    <span class="lb-name" id="lightbox-name"></span>
+    <span id="lightbox-counter"></span>
+  </div>
 </div>
-
 
 <script>
 (function() {
-  /* Archive renders from content/archive.json (CMS-editable); interactions wire up after render. */
-  window.toggleEvent = function(id) {
-    var card = document.getElementById(id);
-    if (card) card.classList.toggle('open');
-  };
-
+  /* Archive renders from content/archive.json (CMS-editable). */
   function esc(v){
     return String(v == null ? '' : v).replace(/[&<>"]/g, function(c){
       return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c];
     });
   }
+  function pad2(n){ return ('0' + n).slice(-2); }
+
+  var rail = document.getElementById('archive-rail');
+  var prevBtn = document.getElementById('rail-prev');
+  var nextBtn = document.getElementById('rail-next');
 
   var lightbox = document.getElementById('lightbox');
   var lbImg = document.getElementById('lightbox-img');
+  var lbName = document.getElementById('lightbox-name');
   var lbCounter = document.getElementById('lightbox-counter');
-  var currentImgs = [];
-  var cur = 0;
+  var currentImgs = [], curName = '', cur = 0;
 
-  function buildCard(ev){
-    var cardId = 'event-' + ev.id;
-    var meta = esc(ev.volume) + (ev.date ? ' &mdash; ' + esc(ev.date) : '');
-    var count = (ev.photos ? ev.photos.length : 0) + ' photos';
-    var blurb = ev.blurb ? '<span class="event-blurb">' + esc(ev.blurb) + '</span>' : '';
-    var items = (ev.photos || []).map(function(src){
-      return '<div class="gallery-item"><img src="' + esc(src) + '" alt="' + esc(ev.name) + '" loading="lazy"></div>';
-    }).join('');
-    return '<div class="event-card" id="' + esc(cardId) + '">' +
-        '<div class="event-header" onclick="toggleEvent(\'' + esc(cardId) + '\')">' +
-          '<img class="event-thumb" src="' + esc(ev.thumb) + '" alt="' + esc(ev.name) + '">' +
-          '<div class="event-info">' +
-            '<span class="event-name">' + esc(ev.name) + '</span>' +
-            '<span class="event-meta">' + meta + '</span>' +
-            blurb +
-            '<span class="event-photo-count">' + esc(count) + '</span>' +
-          '</div>' +
-          '<span class="event-arrow">&#8594;</span>' +
+  var EVENTS = [];
+
+  function buildTile(ev, i){
+    var poster = ev.thumb || (ev.photos && ev.photos[0]) || '';
+    var sub = esc(ev.volume) + (ev.date ? ' &mdash; ' + esc(ev.date) : '') +
+              '  &middot;  ' + ((ev.photos && ev.photos.length) || 0) + ' photos';
+    return '<div class="tile" tabindex="0" role="button" data-index="' + i + '" aria-label="' + esc(ev.name) + '">' +
+        '<div class="tile-poster">' +
+          '<span class="tile-num">[' + pad2(i + 1) + ']</span>' +
+          '<span class="tile-view">View &rarr;</span>' +
+          '<img src="' + esc(poster) + '" alt="' + esc(ev.name) + '" loading="lazy">' +
         '</div>' +
-        '<div class="event-gallery"><div class="gallery-grid" data-event="' + esc(ev.id) + '">' + items + '</div></div>' +
+        '<div class="tile-meta">' +
+          '<span class="tile-name">' + esc(ev.name) + '</span>' +
+          '<span class="tile-sub">' + sub + '</span>' +
+          (ev.blurb ? '<span class="tile-blurb">' + esc(ev.blurb) + '</span>' : '') +
+        '</div>' +
       '</div>';
   }
 
-  function bindGallery(){
-    document.querySelectorAll('.gallery-item').forEach(function(item){
-      item.addEventListener('click', function(){
-        var grid = item.closest('.gallery-grid');
-        currentImgs = [];
-        grid.querySelectorAll('img').forEach(function(img){ currentImgs.push(img.src); });
-        var items = Array.prototype.slice.call(grid.querySelectorAll('.gallery-item'));
-        cur = items.indexOf(item);
-        lbImg.src = currentImgs[cur];
-        lbCounter.textContent = (cur + 1) + ' / ' + currentImgs.length;
-        lightbox.classList.add('open');
-      });
-    });
+  function openEvent(i){
+    var ev = EVENTS[i];
+    if (!ev || !ev.photos || !ev.photos.length) return;
+    currentImgs = ev.photos.slice();
+    curName = ev.name;
+    cur = 0;
+    renderLb();
+    lightbox.classList.add('open');
   }
+  function renderLb(){
+    lbImg.src = currentImgs[cur];
+    lbName.textContent = curName;
+    lbCounter.textContent = (cur + 1) + ' / ' + currentImgs.length;
+  }
+  window.closeLightbox = function(){ lightbox.classList.remove('open'); };
+  window.navLightbox = function(dir){
+    if (!currentImgs.length) return;
+    cur = (cur + dir + currentImgs.length) % currentImgs.length;
+    renderLb();
+  };
+
+  /* arrows scroll the rail by one tile */
+  function step(){
+    var t = rail.querySelector('.tile');
+    return t ? (t.getBoundingClientRect().width + 22) : rail.clientWidth * 0.8;
+  }
+  function updateArrows(){
+    prevBtn.disabled = rail.scrollLeft <= 4;
+    nextBtn.disabled = rail.scrollLeft >= (rail.scrollWidth - rail.clientWidth - 4);
+  }
+  prevBtn.addEventListener('click', function(){ rail.scrollBy({ left: -step(), behavior: 'smooth' }); });
+  nextBtn.addEventListener('click', function(){ rail.scrollBy({ left: step(), behavior: 'smooth' }); });
+  rail.addEventListener('scroll', updateArrows, { passive: true });
+
+  /* drag-to-scroll for mouse (touch already swipes natively) */
+  var down = false, startX = 0, startScroll = 0, moved = false;
+  rail.addEventListener('pointerdown', function(e){
+    if (e.pointerType !== 'mouse') return;
+    down = true; moved = false; startX = e.clientX; startScroll = rail.scrollLeft;
+    rail.classList.add('dragging');
+  });
+  rail.addEventListener('pointermove', function(e){
+    if (!down) return;
+    var dx = e.clientX - startX;
+    if (Math.abs(dx) > 4) moved = true;
+    rail.scrollLeft = startScroll - dx;
+  });
+  function endDrag(){ if (!down) return; down = false; rail.classList.remove('dragging'); updateArrows(); }
+  rail.addEventListener('pointerup', endDrag);
+  rail.addEventListener('pointerleave', endDrag);
+
+  /* tile open (suppress if it was a drag) */
+  rail.addEventListener('click', function(e){
+    var tile = e.target.closest('.tile');
+    if (!tile || moved) return;
+    openEvent(parseInt(tile.getAttribute('data-index'), 10));
+  });
+  rail.addEventListener('keydown', function(e){
+    var tile = e.target.closest('.tile');
+    if (tile && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      openEvent(parseInt(tile.getAttribute('data-index'), 10));
+    }
+  });
+
+  /* keyboard: lightbox nav when open, else move the rail */
+  document.addEventListener('keydown', function(e){
+    if (lightbox.classList.contains('open')) {
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowRight') navLightbox(1);
+      if (e.key === 'ArrowLeft') navLightbox(-1);
+      return;
+    }
+    if (e.key === 'ArrowRight') rail.scrollBy({ left: step(), behavior: 'smooth' });
+    if (e.key === 'ArrowLeft') rail.scrollBy({ left: -step(), behavior: 'smooth' });
+  });
+  lightbox.addEventListener('click', function(e){ if (e.target === lightbox) closeLightbox(); });
 
   fetch('content/archive.json')
     .then(function(r){ return r.json(); })
     .then(function(data){
-      var wrap = document.getElementById('events-wrap');
-      wrap.innerHTML = (data.events || []).map(buildCard).join('');
-      bindGallery();
+      EVENTS = data.events || [];
+      rail.innerHTML = EVENTS.map(buildTile).join('');
+      rail.scrollLeft = 0;
+      requestAnimationFrame(function(){ rail.scrollLeft = 0; updateArrows(); });
+      updateArrows();
     })
     .catch(function(){
-      var wrap = document.getElementById('events-wrap');
-      if (wrap) wrap.innerHTML = '<p style="text-align:center;color:var(--dim);font-family:\'Space Mono\',monospace;font-size:0.7rem;letter-spacing:0.2em;padding:3rem 1rem;">Archive unavailable.</p>';
+      rail.innerHTML = '<p class="archive-empty">Archive unavailable.</p>';
+      prevBtn.style.display = nextBtn.style.display = 'none';
     });
-
-  window.closeLightbox = function() { lightbox.classList.remove('open'); };
-  window.navLightbox = function(dir) {
-    cur = (cur + dir + currentImgs.length) % currentImgs.length;
-    lbImg.src = currentImgs[cur];
-    lbCounter.textContent = (cur + 1) + ' / ' + currentImgs.length;
-  };
-  lightbox.addEventListener('click', function(e) {
-    if (e.target === lightbox) closeLightbox();
-  });
-  document.addEventListener('keydown', function(e) {
-    if (!lightbox.classList.contains('open')) return;
-    if (e.key === 'Escape') closeLightbox();
-    if (e.key === 'ArrowRight') navLightbox(1);
-    if (e.key === 'ArrowLeft') navLightbox(-1);
-  });
 })();
 </script>
 </body>

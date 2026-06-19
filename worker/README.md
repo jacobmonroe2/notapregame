@@ -6,7 +6,7 @@ admin page (`/admin`) behind a passcode.
 - `POST /` — store a submission (the site's form calls this)
 - `GET /list` — return all submissions as JSON (only with the right passcode)
 
-The admin page is already pointed at `https://pregame-signup.jacobmilesmonroe.workers.dev/list`,
+The admin page is already pointed at `https://pregame-signup.jacob-bee.workers.dev/list`,
 so if you deploy this to the **same** Worker name, nothing else needs changing.
 
 ## One-time setup (Cloudflare dashboard, ~5 min)

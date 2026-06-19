@@ -38,3 +38,19 @@ and CSV export). If your current Worker also writes to a **Google Sheet** and yo
 want to keep that, **don't replace it** — send me the current Worker code and I'll
 merge the `/list` + KV parts into it so you get both. (To grab it: Workers & Pages →
 pregame-signup → Edit code → select all → copy.)
+
+
+## Email confirmations (optional)
+
+Send each guest a confirmation email when they submit. Uses [Resend](https://resend.com)
+(free tier; ~10 min). The Worker sends nothing until `RESEND_API_KEY` is set, so
+submissions keep working before you set this up.
+
+1. Sign up at **resend.com** → **API Keys** → create one → copy it.
+2. **Verify your domain** (Domains → Add `notapregame.com`) and add the DNS records
+   it shows you, wherever `notapregame.com` DNS is managed. (To just test first, you
+   can send from `onboarding@resend.dev` to your *own* email without verifying.)
+3. In the Worker → **Settings → Variables and Secrets**, add:
+   - `RESEND_API_KEY` — your Resend key (tick **Encrypt**)
+   - `EMAIL_FROM` — e.g. `The Pregame <hello@notapregame.com>` (must be on the verified domain)
+4. **Deploy.** New submissions now get a branded confirmation email.

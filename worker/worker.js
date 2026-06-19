@@ -62,8 +62,37 @@ async function allRecords(env) {
   return out;
 }
 
+// Send a confirmation email to the guest via Resend. No-op until RESEND_API_KEY
+// is set, so submissions keep working before email is configured.
+async function sendConfirmation(env, data) {
+  if (!env.RESEND_API_KEY) return;
+  const to = String((data && data["Email Address"]) || "").trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) return;
+  const first = String((data && data["First Name"]) || "").trim();
+  const hi = first ? "Hey " + first + "," : "Hey,";
+  const from = env.EMAIL_FROM || "The Pregame <onboarding@resend.dev>";
+  const text = hi + "\n\nThanks for requesting a spot on The Pregame guest list. " +
+    "The Pregame is invite-only — every request is reviewed before confirmation. " +
+    "If you're in, we'll reach out with the details.\n\n— The Pregame\ninstagram.com/notapregame";
+  const html = '<!doctype html><html><body style="margin:0;background:#060606;font-family:Arial,Helvetica,sans-serif;">' +
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#060606;padding:32px 16px;"><tr><td align="center">' +
+    '<table role="presentation" cellpadding="0" cellspacing="0" style="max-width:480px;width:100%;background:#0e0e0e;border:1px solid rgba(240,236,227,0.12);"><tr><td style="padding:32px;">' +
+    '<div style="height:3px;width:42px;background:#e8d84a;margin-bottom:24px;"></div>' +
+    '<p style="font-size:16px;line-height:1.6;margin:0 0 16px;color:#f0ece3;">' + hi + '</p>' +
+    '<p style="font-size:15px;line-height:1.7;margin:0 0 16px;color:rgba(240,236,227,0.78);">Thanks for requesting a spot on <strong style="color:#f0ece3;">The Pregame</strong> guest list.</p>' +
+    '<p style="font-size:15px;line-height:1.7;margin:0 0 16px;color:rgba(240,236,227,0.78);">The Pregame is invite-only — every request is reviewed before confirmation. If you\'re in, we\'ll reach out with the details.</p>' +
+    '<p style="font-size:12px;letter-spacing:1.5px;text-transform:uppercase;margin:28px 0 0;color:rgba(240,236,227,0.5);">— The Pregame</p>' +
+    '<p style="margin:8px 0 0;"><a href="https://instagram.com/notapregame" style="color:#e8d84a;text-decoration:none;font-size:13px;">@notapregame</a></p>' +
+    '</td></tr></table></td></tr></table></body></html>';
+  await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
+    body: JSON.stringify({ from, to, subject: "Your Pregame request — received", html, text }),
+  });
+}
+
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const headers = cors(request, env);
 
@@ -77,6 +106,7 @@ export default {
       const record = { ...data, batch: active, submittedAt: new Date().toISOString() };
       const key = record.submittedAt + "-" + crypto.randomUUID();
       await env.SUBMISSIONS.put(key, JSON.stringify(record));
+      if (ctx && ctx.waitUntil) ctx.waitUntil(sendConfirmation(env, data).catch(() => {}));
       return json({ ok: true }, 200, headers);
     }
 

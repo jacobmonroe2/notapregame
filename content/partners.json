@@ -1,10 +1,16 @@
 {
-  "current": [
-    { "name": "SQUIRE", "logo": "" },
-    { "name": "BUJI Matcha", "logo": "" }
-  ],
   "past": [
-    { "name": "818 Tequila", "logo": "" },
-    { "name": "Yatts", "logo": "" }
+    {
+      "name": "818 Tequila"
+    },
+    {
+      "name": "Yatts"
+    },
+    {
+      "name": "APEX"
+    },
+    {
+      "name": "ONESEED"
+    }
   ]
 }

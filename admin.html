@@ -66,6 +66,8 @@ th { font-family:'Space Mono',monospace; font-size:0.55rem; letter-spacing:0.16e
 td { font-family:'Syne'; color:var(--white); }
 tr:hover td { background:rgba(240,236,227,0.03); }
 td.tier-ff { color:var(--yellow); }
+.ig-link { color:var(--yellow); text-decoration:none; }
+.ig-link:hover { text-decoration:underline; }
 .empty, .loading { padding:3rem 1rem; text-align:center; color:var(--dim); font-family:'Space Mono',monospace; font-size:0.7rem; letter-spacing:0.16em; }
 .hint { font-family:'Space Mono',monospace; font-size:0.55rem; letter-spacing:0.1em; color:rgba(240,236,227,0.28); margin-top:1.2rem; line-height:1.8; }
 </style>
@@ -127,6 +129,14 @@ td.tier-ff { color:var(--yellow); }
 
   function esc(v){ return String(v==null?'':v).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
 
+  function igLink(v){
+    var raw=String(v==null?'':v).trim();
+    if(!raw) return '';
+    var user=raw.replace(/^@+/,'').replace(/^https?:\/\/(www\.)?instagram\.com\//i,'').replace(/[\/?].*$/,'').trim();
+    if(!user) return esc(raw);
+    return '<a class="ig-link" href="https://instagram.com/'+encodeURIComponent(user)+'" target="_blank" rel="noopener">'+esc(raw)+'</a>';
+  }
+
   function columns(data){
     var seen={}, cols=[];
     ORDER.forEach(function(k){ if(data.some(function(r){return k in r;})){ cols.push(k); seen[k]=1; } });
@@ -152,7 +162,8 @@ td.tier-ff { color:var(--yellow); }
     html+=data.map(function(r){
       return '<tr>'+cols.map(function(c){
         var cls = (c==='tier' && /family|ff/i.test(String(r[c]||''))) ? ' class="tier-ff"' : '';
-        return '<td'+cls+'>'+esc(r[c])+'</td>';
+        var val = (c==='Instagram Handle') ? igLink(r[c]) : esc(r[c]);
+        return '<td'+cls+'>'+val+'</td>';
       }).join('')+'</tr>';
     }).join('');
     el.innerHTML=html+'</tbody></table>';

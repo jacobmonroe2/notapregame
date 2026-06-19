@@ -225,7 +225,7 @@ body {
 
 <section class="hero">
   <h1>Partners</h1>
-  <p class="hero-sub">Brands we've worked with</p>
+  <p class="hero-sub" id="partners-sub">Brands we've worked with</p>
 </section>
 
 <!-- PARTNERS LOGO GRID (rendered from the CMS-editable config in the script below) -->
@@ -243,11 +243,11 @@ body {
 <!-- WORK WITH US -->
 <section class="work-wrap">
   <div class="work-inner">
-    <h2 class="work-heading">Work With Us</h2>
-    <p class="work-body">We work with brands that want to be in the room with the right people. Reach out to discuss sponsorship and activation opportunities.</p>
+    <h2 class="work-heading" id="work-heading">Work With Us</h2>
+    <p class="work-body" id="work-body">We work with brands that want to be in the room with the right people. Reach out to discuss sponsorship and activation opportunities.</p>
     <div class="work-cta-row">
-      <a class="work-cta primary" href="mailto:che@notapregame.com?subject=Partnership%20Inquiry%20%E2%80%94%20The%20Pregame">Email Us</a>
-      <a class="work-cta secondary" href="https://instagram.com/notapregame" target="_blank" rel="noopener">DM on Instagram</a>
+      <a class="work-cta primary" id="work-email" href="mailto:che@notapregame.com?subject=Partnership%20Inquiry%20%E2%80%94%20The%20Pregame">Email Us</a>
+      <a class="work-cta secondary" id="work-ig" href="https://instagram.com/notapregame" target="_blank" rel="noopener">DM on Instagram</a>
     </div>
   </div>
 </section>
@@ -294,11 +294,23 @@ body {
     }).join('');
   }
 
+  function applyText(data){
+    if(data.subtitle){ var s=document.getElementById('partners-sub'); if(s) s.textContent=data.subtitle; }
+    var w=data.workWithUs||{};
+    if(w.heading){ var h=document.getElementById('work-heading'); if(h) h.textContent=w.heading; }
+    if(w.body){ var b=document.getElementById('work-body'); if(b) b.textContent=w.body; }
+    var em=document.getElementById('work-email');
+    if(em && w.email){ em.href='mailto:'+w.email+'?subject=Partnership%20Inquiry'; if(w.emailLabel) em.textContent=w.emailLabel; }
+    var ig=document.getElementById('work-ig');
+    if(ig && w.instagramLabel){ ig.textContent=w.instagramLabel; }
+  }
+
   fetch('content/partners.json')
     .then(function(r){ return r.json(); })
     .then(function(PARTNERS){
       renderGroup('group-current', 'grid-current', PARTNERS.current);
       renderGroup('group-past', 'grid-past', PARTNERS.past);
+      applyText(PARTNERS);
     })
     .catch(function(){
       var gc = document.getElementById('group-current');

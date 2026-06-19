@@ -6,5 +6,11 @@
     "venue": ""
   },
   "operatingCities": ["Washington, D.C.", "Philadelphia"],
-  "expansionCities": ["New York", "Atlanta", "Los Angeles"]
+  "expansionCities": ["New York", "Atlanta", "Los Angeles"],
+  "copy": {
+    "headline": "The Next One Is Coming",
+    "cta": "Request Your Spot",
+    "comingSoonLabel": "Coming Soon",
+    "exclusivityNote": "The Pregame is invite-only. Submitting a request does not guarantee access. All requests are reviewed before confirmation."
+  }
 }

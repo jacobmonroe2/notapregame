@@ -12,7 +12,10 @@ live site automatically (usually within a minute).
 | Homepage | Upcoming event (city, date, venue) + on/off toggle | `content/home.json` |
 | Homepage | City ticker (cities you operate in) | `content/home.json` |
 | Homepage | "Coming Soon" teaser cities | `content/home.json` |
-| Partners page | Current & past partner logos | `content/partners.json` |
+| Homepage | Text — headline, button label, sign-up note | `content/home.json` |
+| About page | Heading + paragraphs | `content/about.json` |
+| Partners page | Subtitle, current & past partner logos | `content/partners.json` |
+| Partners page | "Work With Us" — copy, sponsorship email, button labels | `content/partners.json` |
 | Archive page | Events — name, volume, date, blurb, thumbnail, photos | `content/archive.json` |
 
 ## One-time setup (≈ 5 minutes)
@@ -22,8 +25,8 @@ We use **[Pages CMS](https://pagescms.org)** — a free editing UI for sites kep
 1. Go to **https://app.pagescms.org** and click **Sign in with GitHub**.
 2. When prompted, **install the Pages CMS GitHub app** and give it access to the
    **`jacobmonroe2/notapregame`** repository only.
-3. Open that repository inside Pages CMS. You'll see **Homepage**, **Partners**, and
-   **Archive events** in the sidebar — these are defined by [`.pages.yml`](.pages.yml).
+3. Open that repository inside Pages CMS. You'll see **Homepage**, **About page**,
+   **Partners**, and **Archive events** in the sidebar — these are defined by [`.pages.yml`](.pages.yml).
 
 That's it. Anyone you want editing the site just repeats steps 1–2 (they need access to the repo).
 

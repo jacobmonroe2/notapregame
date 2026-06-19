@@ -152,9 +152,9 @@ body {
 </nav>
 
 <div class="about-wrap">
-  <h1 class="about-heading">The Pregame</h1>
+  <h1 class="about-heading" id="about-heading">The Pregame</h1>
 
-  <div class="about-body">
+  <div class="about-body" id="about-body">
     <p>The Pregame is an invite-only event series held in unconventional spaces before the night begins.</p>
 
     <p>Every edition brings together a curated mix of professionals from finance, tech, media, music, and creative industries — people who don't usually share the same room, until now.</p>
@@ -178,5 +178,23 @@ body {
   </a>
 </div>
 
+<script>
+(function(){
+  fetch('content/about.json')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(data.heading){ var h=document.getElementById('about-heading'); if(h) h.textContent=data.heading; }
+      if(Array.isArray(data.paragraphs) && data.paragraphs.length){
+        var body=document.getElementById('about-body');
+        if(body){
+          body.innerHTML = data.paragraphs.map(function(p){
+            return '<p>' + String(p).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}) + '</p>';
+          }).join('');
+        }
+      }
+    })
+    .catch(function(){ /* keep static fallback copy */ });
+})();
+</script>
 </body>
 </html>

@@ -16,7 +16,7 @@ media:
     extensions: [svg, png, jpg, jpeg, webp]
 
 content:
-  # ---- Homepage: upcoming event, city ticker, Coming Soon ----
+  # ---- Homepage: event, ticker, Coming Soon, and on-page copy ----
   - name: home
     label: Homepage
     type: file
@@ -26,7 +26,7 @@ content:
       - name: event
         label: Upcoming event
         type: object
-        description: When an event is live, turn it on and fill in the details. When off, the homepage shows "The Next One Is Coming".
+        description: When an event is live, turn it on and fill in the details. When off, the homepage shows the headline below.
         fields:
           - { name: active, label: Event is live?, type: boolean, default: false }
           - { name: city, label: City, type: string }
@@ -41,14 +41,36 @@ content:
         type: string
         list: true
         description: Teaser cities shown on the homepage. Remove one once its event is announced above.
+      - name: copy
+        label: Homepage text
+        type: object
+        fields:
+          - { name: headline, label: Headline (shown when no event is live), type: string }
+          - { name: cta, label: Main button label, type: string }
+          - { name: comingSoonLabel, label: "\"Coming Soon\" label", type: string }
+          - { name: exclusivityNote, label: Sign-up form note, type: text }
 
-  # ---- Partners: logo grid on the Partners page ----
+  # ---- About page ----
+  - name: about
+    label: About page
+    type: file
+    path: content/about.json
+    format: json
+    fields:
+      - { name: heading, label: Heading, type: string }
+      - name: paragraphs
+        label: Paragraphs
+        type: text
+        list: true
+
+  # ---- Partners page: logos + intro + Work With Us ----
   - name: partners
     label: Partners
     type: file
     path: content/partners.json
     format: json
     fields:
+      - { name: subtitle, label: Page subtitle, type: string }
       - name: current
         label: Current partners
         type: object
@@ -63,6 +85,15 @@ content:
         fields:
           - { name: name, label: Brand name, type: string }
           - { name: logo, label: Logo image (optional), type: image, options: { media: partners } }
+      - name: workWithUs
+        label: Work With Us section
+        type: object
+        fields:
+          - { name: heading, label: Heading, type: string }
+          - { name: body, label: Body copy, type: text }
+          - { name: email, label: Sponsorship email, type: string }
+          - { name: emailLabel, label: Email button label, type: string }
+          - { name: instagramLabel, label: Instagram button label, type: string }
 
   # ---- Archive: events, photos, and blurbs ----
   - name: archive

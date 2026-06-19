@@ -1,4 +1,5 @@
 {
+  "subtitle": "Brands we've worked with",
   "past": [
     {
       "name": "818 Tequila"
@@ -12,5 +13,12 @@
     {
       "name": "ONESEED"
     }
-  ]
+  ],
+  "workWithUs": {
+    "heading": "Work With Us",
+    "body": "We work with brands that want to be in the room with the right people. Reach out to discuss sponsorship and activation opportunities.",
+    "email": "che@notapregame.com",
+    "emailLabel": "Email Us",
+    "instagramLabel": "DM on Instagram"
+  }
 }

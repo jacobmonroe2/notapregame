@@ -233,6 +233,20 @@ a.btm:hover { opacity:1; }
 .field input::placeholder { color:rgba(240,236,227,0.18); }
 .field input:focus { border-color:rgba(240,236,227,0.32); }
 
+.field select {
+  width:100%; background:rgba(255,255,255,0.04);
+  border:1px solid rgba(240,236,227,0.1);
+  color:var(--white); padding:0.8rem 2.5rem 0.8rem 1rem;
+  font-family:'Syne',sans-serif; font-size:0.875rem;
+  outline:none; transition:border-color 0.2s; cursor:crosshair;
+  -webkit-appearance:none; -moz-appearance:none; appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23f0ece3' stroke-opacity='0.5' stroke-width='1.4' fill='none'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 1rem center;
+}
+.field select:focus { border-color:rgba(240,236,227,0.32); }
+.field select:invalid { color:rgba(240,236,227,0.4); }
+.field select option { background:#0e0e0e; color:var(--white); }
+
 .field-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
 
 .pw-hint {
@@ -626,7 +640,24 @@ a.btm:hover { opacity:1; }
       <div class="field"><label>Email Address</label><input type="email" placeholder="you@email.com"></div>
       <div class="field"><label>Phone Number</label><input type="tel" placeholder="+1 (212) 000-0000"></div>
       <div class="field"><label>Instagram Handle</label><input type="text" placeholder="@yourhandle"></div>
-      <div class="field"><label>Industry / What You Do</label><input type="text" placeholder="Finance, tech, music…"></div>
+      <div class="field"><label>Industry / What You Do</label>
+        <select class="industry-select">
+          <option value="" disabled selected>Select one…</option>
+          <option>Finance</option>
+          <option>Tech</option>
+          <option>Media</option>
+          <option>Music</option>
+          <option>Film / TV</option>
+          <option>Fashion</option>
+          <option>Art / Design</option>
+          <option>Marketing / PR</option>
+          <option>Hospitality</option>
+          <option>Real Estate</option>
+          <option>Sports</option>
+          <option value="Other">Other</option>
+        </select>
+        <input type="text" class="industry-other" placeholder="Tell us what you do" style="display:none;margin-top:0.6rem;">
+      </div>
       <button class="btn-submit" id="submit-general">Request My Spot →</button>
     </div>
     <!-- FRIENDS & FAMILY -->
@@ -639,7 +670,24 @@ a.btm:hover { opacity:1; }
       <div class="field"><label>Email Address</label><input type="email" placeholder="you@email.com"></div>
       <div class="field"><label>Phone Number</label><input type="tel" placeholder="+1 (212) 000-0000"></div>
       <div class="field"><label>Instagram Handle</label><input type="text" placeholder="@yourhandle"></div>
-      <div class="field"><label>Industry / What You Do</label><input type="text" placeholder="Finance, tech, music…"></div>
+      <div class="field"><label>Industry / What You Do</label>
+        <select class="industry-select">
+          <option value="" disabled selected>Select one…</option>
+          <option>Finance</option>
+          <option>Tech</option>
+          <option>Media</option>
+          <option>Music</option>
+          <option>Film / TV</option>
+          <option>Fashion</option>
+          <option>Art / Design</option>
+          <option>Marketing / PR</option>
+          <option>Hospitality</option>
+          <option>Real Estate</option>
+          <option>Sports</option>
+          <option value="Other">Other</option>
+        </select>
+        <input type="text" class="industry-other" placeholder="Tell us what you do" style="display:none;margin-top:0.6rem;">
+      </div>
       <div class="field">
         <label>Friends &amp; Family Password</label>
         <input type="password" id="ff-pw" placeholder="Enter F&amp;F code">
@@ -734,8 +782,16 @@ a.btm:hover { opacity:1; }
   function validateFields(formEl){
     let ok=true;
     formEl.querySelectorAll('input[type=text],input[type=email],input[type=tel]').forEach(f=>{
+      if(f.classList.contains('industry-other')){
+        const sel=f.closest('.field')?.querySelector('select');
+        if(!sel || sel.value!=='Other'){ f.style.borderColor=''; return; }
+      }
       if(!f.value.trim()){ f.style.borderColor='rgba(255,80,60,0.5)'; ok=false; }
       else { f.style.borderColor=''; }
+    });
+    formEl.querySelectorAll('select').forEach(sel=>{
+      if(!sel.value){ sel.style.borderColor='rgba(255,80,60,0.5)'; ok=false; }
+      else { sel.style.borderColor=''; }
     });
     return ok;
   }
@@ -744,9 +800,18 @@ a.btm:hover { opacity:1; }
 
   function collectData(formEl,tier){
     const data={tier};
-    formEl.querySelectorAll('input').forEach(inp=>{
-      const label=inp.closest('.field')?.querySelector('label')?.textContent?.trim();
-      if(label && label!=='Friends & Family Password') data[label]=inp.value;
+    formEl.querySelectorAll('.field').forEach(field=>{
+      const label=field.querySelector('label')?.textContent?.trim();
+      if(!label || label==='Friends & Family Password') return;
+      const sel=field.querySelector('select');
+      if(sel){
+        let val=sel.value;
+        if(val==='Other'){ const o=field.querySelector('.industry-other'); val=o?o.value.trim():''; }
+        data[label]=val;
+      } else {
+        const inp=field.querySelector('input');
+        if(inp) data[label]=inp.value;
+      }
     });
     return data;
   }
@@ -806,6 +871,16 @@ a.btm:hover { opacity:1; }
     });
   }
   livePasswordCheck('ff-pw','ff-pw-hint',PASSWORDS.ff,'Enter the password shared with you.');
+
+  /* INDUSTRY DROPDOWN — show the free-text box only when "Other" is selected */
+  document.querySelectorAll('.industry-select').forEach(function(sel){
+    sel.addEventListener('change', function(){
+      const other = sel.closest('.field').querySelector('.industry-other');
+      if(!other) return;
+      if(sel.value === 'Other'){ other.style.display=''; }
+      else { other.style.display='none'; other.value=''; other.style.borderColor=''; }
+    });
+  });
 
 })();
 </script>

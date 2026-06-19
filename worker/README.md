@@ -3,8 +3,14 @@
 This Cloudflare Worker receives sign-up submissions and serves them to the
 admin page (`/admin`) behind a passcode.
 
-- `POST /` — store a submission (the site's form calls this)
-- `GET /list` — return all submissions as JSON (only with the right passcode)
+- `POST /` — store a submission into the **active event batch** (the form calls this)
+- `GET /list` — all submissions (admin)
+- `GET /batches` — event batches + which is active (admin)
+- `POST /batch` — start / switch the active event batch (admin)
+- `POST /delete` / `POST /clear` — remove one submission, or a whole batch (admin)
+
+**Updating later:** paste the newest `worker.js` and **Deploy** — your KV binding
+and `ADMIN_KEY` are unaffected.
 
 The admin page is already pointed at `https://pregame-signup.jacob-bee.workers.dev/list`,
 so if you deploy this to the **same** Worker name, nothing else needs changing.

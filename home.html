@@ -551,6 +551,7 @@ a.btm:hover { opacity:1; }
     padding: 1.6rem 1rem 1.4rem;
   }
 }
+#admin-dot{position:fixed;left:0;bottom:0;width:46px;height:46px;z-index:60;cursor:default;}
 </style>
 </head>
 <body>
@@ -884,5 +885,8 @@ a.btm:hover { opacity:1; }
 
 })();
 </script>
+<!-- hidden admin entrance: double-click/tap the bottom-left corner -->
+<div id="admin-dot" aria-hidden="true"></div>
+<script>document.getElementById('admin-dot').addEventListener('dblclick',function(){location.href='/admin';});</script>
 </body>
 </html>

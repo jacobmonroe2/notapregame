@@ -5,7 +5,9 @@
       "name": "Foundry Gallery",
       "volume": "Vol. 01",
       "date": "February 2026",
-      "blurb": "Washington, D.C., February 2026. The first edition of the year — fifty guests, one room, no repeats.",
+      "blurb": "Washington, D.C., February 2026. ",
+      "guests": "60",
+      "writeup": "Our debut event at Foundry Gallery drew 60 attendees for an immersive evening featuring modern art by local artists. The space set the tone for everything that followed. Curated, intimate, and rooted in culture.\n",
       "thumb": "/photos/foundry/thumb.jpg",
       "photos": [
         "/photos/foundry/R1-04439-000A.jpg",

@@ -1,27 +1,25 @@
 {
   "events": [
     {
-      "id": "foundry",
-      "name": "Foundry Gallery",
-      "volume": "Vol. 01",
-      "date": "February 2026",
-      "blurb": "Washington, D.C., February 2026. ",
-      "guests": "60 guests",
-      "writeup": "Our debut event at Foundry Gallery drew 60 attendees for an immersive evening featuring modern art by local artists. The space set the tone for everything that followed. Curated, intimate, and rooted in culture.\n\nSponsor\n\nFoundry Gallery\n\nDJ\n\njustche\n",
-      "thumb": "/photos/foundry/thumb.jpg",
+      "id": "thestix",
+      "name": "Unido — Yatts Edition",
+      "volume": "Vol. 03",
+      "date": "April 2026",
+      "blurb": "Washington, D.C., April 2026. Our Unido edition with Yatts — shot entirely on film.",
+      "thumb": "/photos/thestix/thumb.jpg",
       "photos": [
-        "/photos/foundry/R1-04439-000A.jpg",
-        "/photos/foundry/R1-04439-001A.jpg",
-        "/photos/foundry/R1-04439-002A.jpg",
-        "/photos/foundry/R1-04439-003A.jpg",
-        "/photos/foundry/R1-04439-004A.jpg",
-        "/photos/foundry/R1-04439-005A.jpg",
-        "/photos/foundry/R1-04439-006A.jpg",
-        "/photos/foundry/R1-04439-007A.jpg",
-        "/photos/foundry/R1-04439-008A.jpg",
-        "/photos/foundry/R1-04439-009A.jpg",
-        "/photos/foundry/R1-04439-010A.jpg",
-        "/photos/foundry/R1-04439-011A.jpg"
+        "/photos/thestix/432960005883-R1-002.jpg",
+        "/photos/thestix/432960005883-R1-003.jpg",
+        "/photos/thestix/432960005883-R1-005.jpg",
+        "/photos/thestix/432960005883-R1-006.jpg",
+        "/photos/thestix/432960005883-R1-008.jpg",
+        "/photos/thestix/432960005883-R1-010.jpg",
+        "/photos/thestix/432960005883-R1-012.jpg",
+        "/photos/thestix/432960005883-R1-015.jpg",
+        "/photos/thestix/432960005884-R1-003.jpg",
+        "/photos/thestix/432960005884-R1-005.jpg",
+        "/photos/thestix/432960005884-R1-006.jpg",
+        "/photos/thestix/432960005884-R1-007.jpg"
       ]
     },
     {
@@ -47,25 +45,27 @@
       ]
     },
     {
-      "id": "thestix",
-      "name": "Unido — Yatts Edition",
-      "volume": "Vol. 03",
-      "date": "April 2026",
-      "blurb": "Washington, D.C., April 2026. Our Unido edition with Yatts — shot entirely on film.",
-      "thumb": "/photos/thestix/thumb.jpg",
+      "id": "foundry",
+      "name": "Foundry Gallery",
+      "volume": "Vol. 01",
+      "date": "February 2026",
+      "blurb": "Washington, D.C., February 2026. ",
+      "guests": "60 guests",
+      "writeup": "Our debut event at Foundry Gallery drew 60 attendees for an immersive evening featuring modern art by local artists. The space set the tone for everything that followed. Curated, intimate, and rooted in culture.\n\nSponsor\n\nFoundry Gallery\n\nDJ\n\njustche\n",
+      "thumb": "/photos/foundry/thumb.jpg",
       "photos": [
-        "/photos/thestix/432960005883-R1-002.jpg",
-        "/photos/thestix/432960005883-R1-003.jpg",
-        "/photos/thestix/432960005883-R1-005.jpg",
-        "/photos/thestix/432960005883-R1-006.jpg",
-        "/photos/thestix/432960005883-R1-008.jpg",
-        "/photos/thestix/432960005883-R1-010.jpg",
-        "/photos/thestix/432960005883-R1-012.jpg",
-        "/photos/thestix/432960005883-R1-015.jpg",
-        "/photos/thestix/432960005884-R1-003.jpg",
-        "/photos/thestix/432960005884-R1-005.jpg",
-        "/photos/thestix/432960005884-R1-006.jpg",
-        "/photos/thestix/432960005884-R1-007.jpg"
+        "/photos/foundry/R1-04439-000A.jpg",
+        "/photos/foundry/R1-04439-001A.jpg",
+        "/photos/foundry/R1-04439-002A.jpg",
+        "/photos/foundry/R1-04439-003A.jpg",
+        "/photos/foundry/R1-04439-004A.jpg",
+        "/photos/foundry/R1-04439-005A.jpg",
+        "/photos/foundry/R1-04439-006A.jpg",
+        "/photos/foundry/R1-04439-007A.jpg",
+        "/photos/foundry/R1-04439-008A.jpg",
+        "/photos/foundry/R1-04439-009A.jpg",
+        "/photos/foundry/R1-04439-010A.jpg",
+        "/photos/foundry/R1-04439-011A.jpg"
       ]
     }
   ]

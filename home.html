@@ -887,6 +887,6 @@ a.btm:hover { opacity:1; }
 </script>
 <!-- hidden admin entrance: double-click/tap the bottom-left corner -->
 <div id="admin-dot" aria-hidden="true"></div>
-<script>document.getElementById('admin-dot').addEventListener('dblclick',function(){location.href='/admin';});</script>
+<script>(function(){var d=document.getElementById('admin-dot'),n=0,t=0;d.addEventListener('click',function(){var x=Date.now();n=(x-t<600)?n+1:1;t=x;if(n>=2){n=0;location.href='/admin';}});})();</script>
 </body>
 </html>

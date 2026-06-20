@@ -246,6 +246,16 @@ a.btm:hover { opacity:1; }
 .field select:focus { border-color:rgba(240,236,227,0.32); }
 .field select:invalid { color:rgba(240,236,227,0.4); }
 .field select option { background:#0e0e0e; color:var(--white); }
+.field textarea {
+  width:100%; background:rgba(255,255,255,0.04);
+  border:1px solid rgba(240,236,227,0.1);
+  color:var(--white); padding:0.8rem 1rem;
+  font-family:'Syne',sans-serif; font-size:0.875rem; line-height:1.5;
+  outline:none; transition:border-color 0.2s; cursor:crosshair;
+  resize:vertical; min-height:92px;
+}
+.field textarea::placeholder { color:rgba(240,236,227,0.18); }
+.field textarea:focus { border-color:rgba(240,236,227,0.32); }
 
 .field-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
 
@@ -659,6 +669,7 @@ a.btm:hover { opacity:1; }
         </select>
         <input type="text" class="industry-other" placeholder="Tell us what you do" style="display:none;margin-top:0.6rem;">
       </div>
+      <div class="field"><label>Tell Us About Yourself</label><textarea rows="4" placeholder="A few sentences — who you are, what you're into, what brings you to the room."></textarea></div>
       <button class="btn-submit" id="submit-general">Request My Spot →</button>
     </div>
     <!-- FRIENDS & FAMILY -->
@@ -689,6 +700,7 @@ a.btm:hover { opacity:1; }
         </select>
         <input type="text" class="industry-other" placeholder="Tell us what you do" style="display:none;margin-top:0.6rem;">
       </div>
+      <div class="field"><label>Tell Us About Yourself</label><textarea rows="4" placeholder="A few sentences — who you are, what you're into, what brings you to the room."></textarea></div>
       <div class="field">
         <label>Friends &amp; Family Password</label>
         <input type="password" id="ff-pw" placeholder="Enter F&amp;F code">
@@ -782,7 +794,7 @@ a.btm:hover { opacity:1; }
 
   function validateFields(formEl){
     let ok=true;
-    formEl.querySelectorAll('input[type=text],input[type=email],input[type=tel]').forEach(f=>{
+    formEl.querySelectorAll('input[type=text],input[type=email],input[type=tel],textarea').forEach(f=>{
       if(f.classList.contains('industry-other')){
         const sel=f.closest('.field')?.querySelector('select');
         if(!sel || sel.value!=='Other'){ f.style.borderColor=''; return; }
@@ -810,7 +822,7 @@ a.btm:hover { opacity:1; }
         if(val==='Other'){ const o=field.querySelector('.industry-other'); val=o?o.value.trim():''; }
         data[label]=val;
       } else {
-        const inp=field.querySelector('input');
+        const inp=field.querySelector('input, textarea');
         if(inp) data[label]=inp.value;
       }
     });

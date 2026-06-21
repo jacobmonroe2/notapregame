@@ -89,6 +89,18 @@ td.tier-ff { color:var(--yellow); }
 .del:hover { color:#ff5544; }
 .empty, .loading { padding:3rem 1rem; text-align:center; color:var(--dim); font-family:'Space Mono',monospace; font-size:0.7rem; letter-spacing:0.16em; }
 .hint { font-family:'Space Mono',monospace; font-size:0.55rem; letter-spacing:0.1em; color:rgba(240,236,227,0.28); margin-top:1.2rem; line-height:1.8; }
+.rowcheck, #check-all { cursor:pointer; width:15px; height:15px; accent-color:#e8d84a; vertical-align:middle; }
+th.check, td.check { width:34px; text-align:center; }
+.cmp-overlay { position:fixed; inset:0; z-index:100; background:rgba(0,0,0,0.78); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; padding:1.5rem; }
+.cmp-overlay.open { display:flex; }
+.cmp { width:min(520px,94vw); background:#0e0e0e; border:1px solid var(--border); padding:1.8rem; }
+.cmp h2 { font-family:'Syne'; font-weight:800; font-size:1.2rem; margin-bottom:0.3rem; }
+.cmp .who { font-family:'Space Mono',monospace; font-size:0.6rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--yellow); margin-bottom:1.3rem; }
+.cmp label { display:block; font-family:'Space Mono',monospace; font-size:0.55rem; letter-spacing:0.16em; text-transform:uppercase; color:var(--dim); margin:0 0 0.4rem; }
+.cmp input, .cmp textarea { width:100%; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--white); padding:0.7rem 0.9rem; font-family:'Syne'; font-size:0.9rem; outline:none; margin-bottom:1.1rem; }
+.cmp textarea { min-height:150px; line-height:1.5; resize:vertical; }
+.cmp input:focus, .cmp textarea:focus { border-color:rgba(240,236,227,0.32); }
+.cmp-row { display:flex; gap:0.7rem; justify-content:flex-end; }
 </style>
 </head>
 <body>
@@ -118,8 +130,9 @@ td.tier-ff { color:var(--yellow); }
     <div class="controls">
       <input class="ctl" id="search" type="text" placeholder="Search…">
       <select class="ctl" id="tier"><option value="">All tiers</option></select>
+      <button class="ctl primary" id="send-invite">Send invite</button>
+      <button class="ctl" id="csv">Export CSV</button>
       <button class="ctl" id="refresh">Refresh</button>
-      <button class="ctl primary" id="csv">Export CSV</button>
       <button class="ctl" id="logout">Log out</button>
     </div>
   </div>
@@ -138,6 +151,21 @@ td.tier-ff { color:var(--yellow); }
   <p class="hint">Submissions land in the active batch. Start a new event to send incoming requests to a fresh box; past events stay intact. Read-only otherwise; data lives on the Pregame Worker.</p>
 </div>
 
+<div class="cmp-overlay" id="cmp-overlay">
+  <div class="cmp">
+    <h2>Send invite</h2>
+    <p class="who" id="cmp-who"></p>
+    <label>Subject</label>
+    <input id="cmp-subject" type="text">
+    <label>Message</label>
+    <textarea id="cmp-message"></textarea>
+    <div class="cmp-row">
+      <button class="ctl" id="cmp-cancel">Cancel</button>
+      <button class="ctl primary" id="cmp-send">Send</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function(){
   /* ── CONFIG ── base URL of the Cloudflare Worker ── */
@@ -149,7 +177,7 @@ td.tier-ff { color:var(--yellow); }
 
   var gate=document.getElementById('gate'), app=document.getElementById('app');
   var pass=document.getElementById('passcode'), err=document.getElementById('err');
-  var rows=[], active='', view='', code='';
+  var rows=[], active='', view='', code='', selected={};
   var DEMO = /[?&]demo/.test(location.search);
 
   function esc(v){ return String(v==null?'':v).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
@@ -190,6 +218,7 @@ td.tier-ff { color:var(--yellow); }
     if(path==='/batch'){ demoState.active=body.name; return Promise.resolve({ok:true,active:body.name}); }
     if(path==='/delete'){ demoState.rows=demoState.rows.filter(function(r){return r._key!==body.key;}); return Promise.resolve({ok:true}); }
     if(path==='/clear'){ demoState.rows=demoState.rows.filter(function(r){return r.batch!==body.batch;}); return Promise.resolve({ok:true}); }
+    if(path==='/invite'){ return Promise.resolve({ok:true, sent:(body.recipients||[]).length}); }
     return Promise.resolve({});
   }
 
@@ -213,17 +242,20 @@ td.tier-ff { color:var(--yellow); }
   function render(){
     var data=filtered(), cols=columns(viewRows()), el=document.getElementById('table');
     document.getElementById('count').textContent=' · '+data.length+(data.length===1?' entry':' entries');
-    if(!data.length){ el.innerHTML='<div class="empty">No submissions'+(view?' in “'+esc(view)+'”':'')+'.</div>'; return; }
-    var html='<table><thead><tr>'+cols.map(function(c){return '<th>'+esc(c)+'</th>';}).join('')+'<th></th></tr></thead><tbody>';
+    if(!data.length){ el.innerHTML='<div class="empty">No submissions'+(view?' in “'+esc(view)+'”':'')+'.</div>'; updateInviteBtn(); return; }
+    var html='<table><thead><tr><th class="check"><input type="checkbox" id="check-all"></th>'+cols.map(function(c){return '<th>'+esc(c)+'</th>';}).join('')+'<th></th></tr></thead><tbody>';
     html+=data.map(function(r){
       var cells=cols.map(function(c){
         var cls = (c==='tier' && /family|ff/i.test(String(r[c]||''))) ? ' class="tier-ff"' : '';
         var val = (c==='Instagram Handle') ? igLink(r[c]) : esc(r[c]);
         return '<td'+cls+'>'+val+'</td>';
       }).join('');
-      return '<tr>'+cells+'<td><button class="del" data-key="'+esc(r._key)+'" title="Delete">&times;</button></td></tr>';
+      return '<tr><td class="check"><input type="checkbox" class="rowcheck" data-key="'+esc(r._key)+'"'+(selected[r._key]?' checked':'')+'></td>'+cells+'<td><button class="del" data-key="'+esc(r._key)+'" title="Delete">&times;</button></td></tr>';
     }).join('');
     el.innerHTML=html+'</tbody></table>';
+    var ca=document.getElementById('check-all'), fr=filtered();
+    if(ca) ca.checked = fr.length>0 && fr.every(function(r){return selected[r._key];});
+    updateInviteBtn();
   }
 
   function fillSelect(sel, values, current){
@@ -285,6 +317,43 @@ td.tier-ff { color:var(--yellow); }
   }
   function alertErr(e){ alert(e && e.message==='unauthorized' ? 'Session expired — log in again.' : 'Action failed. Try again.'); }
 
+  /* ── invites ── */
+  function selCount(){ return Object.keys(selected).length; }
+  function updateInviteBtn(){
+    var n=selCount(), b=document.getElementById('send-invite');
+    if(b) b.textContent = n ? ('Send invite ('+n+')') : 'Send invite';
+  }
+  function recipientsForInvite(){
+    var keys = selCount() ? Object.keys(selected) : filtered().map(function(r){return r._key;});
+    var byKey={}; rows.forEach(function(r){ byKey[r._key]=r; });
+    return keys.map(function(k){ return byKey[k]; }).filter(Boolean)
+      .map(function(r){ return { email:String(r['Email Address']||'').trim(), first:String(r['First Name']||'').trim() }; })
+      .filter(function(r){ return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(r.email); });
+  }
+  function openCompose(){
+    var recips=recipientsForInvite();
+    if(!recips.length){ alert('No valid email addresses in that selection.'); return; }
+    var ev = active || view || 'the event';
+    document.getElementById('cmp-who').textContent = 'To '+recips.length+' guest'+(recips.length===1?'':'s')+(selCount()?' selected':' shown');
+    document.getElementById('cmp-subject').value = "You're invited — The Pregame";
+    document.getElementById('cmp-message').value = "You're in.\n\n"+ev+" — [date], [location].\n\nMore details to follow. Keep this one close.\n\nSee you in the room.";
+    document.getElementById('cmp-overlay').classList.add('open');
+  }
+  function sendInvite(){
+    var recips=recipientsForInvite(); if(!recips.length) return;
+    var subject=document.getElementById('cmp-subject').value.trim();
+    var message=document.getElementById('cmp-message').value;
+    var btn=document.getElementById('cmp-send'); btn.disabled=true; btn.textContent='Sending…';
+    api('/invite', { method:'POST', body:JSON.stringify({ recipients:recips, subject:subject, message:message }) })
+      .then(function(res){
+        document.getElementById('cmp-overlay').classList.remove('open');
+        var n = (res && res.sent!=null) ? res.sent : recips.length;
+        alert('Invite sent to '+n+' guest'+(n===1?'':'s')+'.');
+      })
+      .catch(function(e){ alert(e && e.message==='unauthorized' ? 'Session expired — log in again.' : 'Send failed — is email set up in the Worker (RESEND_API_KEY)?'); })
+      .finally(function(){ btn.disabled=false; btn.textContent='Send'; });
+  }
+
   /* ── wire up ── */
   document.getElementById('search').addEventListener('input', render);
   document.getElementById('tier').addEventListener('change', render);
@@ -298,6 +367,23 @@ td.tier-ff { color:var(--yellow); }
   document.getElementById('table').addEventListener('click', function(e){
     var b=e.target.closest('.del'); if(b) delRow(b.getAttribute('data-key'));
   });
+  document.getElementById('table').addEventListener('change', function(e){
+    if(e.target.id==='check-all'){
+      var on=e.target.checked;
+      filtered().forEach(function(r){ if(on) selected[r._key]=true; else delete selected[r._key]; });
+      render();
+    } else if(e.target.classList.contains('rowcheck')){
+      var k=e.target.getAttribute('data-key');
+      if(e.target.checked) selected[k]=true; else delete selected[k];
+      var ca=document.getElementById('check-all'), fr=filtered();
+      if(ca) ca.checked = fr.length>0 && fr.every(function(r){return selected[r._key];});
+      updateInviteBtn();
+    }
+  });
+  document.getElementById('send-invite').addEventListener('click', openCompose);
+  document.getElementById('cmp-cancel').addEventListener('click', function(){ document.getElementById('cmp-overlay').classList.remove('open'); });
+  document.getElementById('cmp-send').addEventListener('click', sendInvite);
+  document.getElementById('cmp-overlay').addEventListener('click', function(e){ if(e.target.id==='cmp-overlay') this.classList.remove('open'); });
 
   /* passcode + eye */
   var EYE_SHOW='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>';

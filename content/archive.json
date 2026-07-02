@@ -27,7 +27,8 @@
       "name": "Unido",
       "volume": "Vol. 02",
       "date": "March 2026",
-      "blurb": "Washington, D.C., March 2026. A warehouse turned living room for one night — industries colliding over a DJ set.",
+      "blurb": "Washington, D.C., March 2026. \n\nCafé Unido Shaw. An intentional guest list, a live set from Wildchild, and a room that filled itself. Founders next to musicians next to people just starting out — connected by ambition more than industry. The word spread on its own. It always does.\n\nDJ\nWildchild\njustche\n\nPhotography\nBryce Anderson - Film\nChris Smith - Film\n\nVideography\nJacob Miles Monroe - Digital\n\nVenue\nCafé Unido Shaw",
+      "guests": "80",
       "thumb": "/photos/unido/thumb.jpg",
       "photos": [
         "/photos/unido/000004800007.jpg",
@@ -51,7 +52,7 @@
       "date": "February 2026",
       "blurb": "Washington, D.C., February 2026. ",
       "guests": "60 guests",
-      "writeup": "Our debut event at Foundry Gallery drew 60 attendees for an immersive evening featuring modern art by local artists. The space set the tone for everything that followed. Curated, intimate, and rooted in culture.\n\nSponsor\n\nFoundry Gallery\n\nDJ\n\njustche\n",
+      "writeup": "Washington, D.C., February 2026. Sixty guests inside Foundry Gallery — walls covered in work from local artists, the kind of room that makes you slow down and actually look. The space did the work before anyone said a word. People who didn't know each other left knowing each other. That was the point.\n\nDJ\n[Name]\n\nPhotography\nMason Daniels - Digital\n\nBryce Anderson\n\nVideography\n[Name]\n\nVenue\nFoundry Gallery\n",
       "thumb": "/photos/foundry/thumb.jpg",
       "photos": [
         "/photos/foundry/R1-04439-000A.jpg",
@@ -66,6 +67,9 @@
         "/photos/foundry/R1-04439-009A.jpg",
         "/photos/foundry/R1-04439-010A.jpg",
         "/photos/foundry/R1-04439-011A.jpg"
+      ],
+      "sponsors": [
+        "Yatts · 818 Tequila"
       ]
     }
   ]

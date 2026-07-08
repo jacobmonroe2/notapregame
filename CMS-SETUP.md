@@ -44,6 +44,13 @@ That's it. Anyone you want editing the site just repeats steps 1–2 (they need 
 
 Images you upload land in `/photos` (event galleries) or `/partners` (logos) automatically.
 
+> **Partner logos must have a truly transparent background.** A file ending in `.png`
+> isn't automatically transparent — Canva's free tier, for example, bakes in a white
+> background (transparent export is a Pro-only toggle). If a logo shows up as a white
+> box on the site, the file itself has a background. Best source: ask the brand for
+> their logo pack (it includes a transparent "knockout" version for dark backgrounds).
+> Quick check: open the PNG on any dark page — if you see a box, it's not transparent.
+
 ## How it works (for developers)
 
 - Content is decoupled from markup: pages fetch `content/*.json` at load and render from it.

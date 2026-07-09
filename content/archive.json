@@ -2,10 +2,10 @@
   "events": [
     {
       "id": "thestix",
-      "name": "Unido — Yatts Edition",
+      "name": "Unido Part 2",
       "volume": "Vol. 03",
       "date": "April 2026",
-      "blurb": "Washington, D.C., April 2026. Our Unido edition with Yatts — shot entirely on film.",
+      "blurb": "Thankfully, Unido allowed us to run it back, but this time even bigger and better.\n\nThis event featured a sponsor, Yatts, a tattoo interface that lets artists run their businesses and customers book appointments through the app (amazing idea). They activated by giving invitees their own temporary \"Yatts\" tattoos and informing them about Yatts, while also adding a cool LED sign.\n\n818 Tequila came in, and we used them for every drink. Shout out to them!\n\nThis one was special because it proved how natural the space can be with partners.",
       "thumb": "/photos/thestix/thumb.jpg",
       "photos": [
         "/photos/thestix/432960005883-R1-002.jpg",
@@ -20,6 +20,14 @@
         "/photos/thestix/432960005884-R1-005.jpg",
         "/photos/thestix/432960005884-R1-006.jpg",
         "/photos/thestix/432960005884-R1-007.jpg"
+      ],
+      "team": [
+        "PHOTOGRAPHY"
+      ],
+      "sponsors": [
+        "Yatts",
+        "818 Tequila",
+        "Unido Cafe "
       ]
     },
     {

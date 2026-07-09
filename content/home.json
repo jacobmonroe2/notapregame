@@ -1,12 +1,16 @@
 {
   "event": {
-    "active": false,
-    "city": "",
-    "date": "",
-    "venue": ""
+    "active": false
   },
-  "operatingCities": ["Washington, D.C.", "Philadelphia"],
-  "expansionCities": ["New York", "Atlanta", "Los Angeles"],
+  "operatingCities": [
+    "Washington, D.C.",
+    "Philadelphia"
+  ],
+  "expansionCities": [
+    "Houston",
+    "Atlanta",
+    "Los Angeles"
+  ],
   "copy": {
     "headline": "The Next One Is Coming",
     "cta": "Request Your Spot",

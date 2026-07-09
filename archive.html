@@ -480,7 +480,8 @@ body {
         '<div class="detail-text">' +
           (lead ? '<p class="detail-lead">' + lead + '</p>' : '') +
           '<div class="detail-writeup">' + writeupHtml + '</div>' +
-          sectionHtml('Highlights', ev.highlights) +
+          sectionHtml('Drink Menu', ev.drinks) +
+          sectionHtml('Sounds', ev.sounds || ev.highlights) +
           sectionHtml('Team', ev.team) +
           sectionHtml('Sponsors', ev.sponsors) +
         '</div>' +

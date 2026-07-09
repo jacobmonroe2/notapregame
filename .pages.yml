@@ -118,8 +118,12 @@ content:
             type: text
           - { name: thumb, label: Thumbnail image, type: image, options: { media: photos } }
           - { name: photos, label: Gallery photos (aim for 8–12), type: image, list: true, options: { media: photos } }
-          - name: highlights
-            label: Highlights (one per line, e.g. "Name — Role")
+          - name: drinks
+            label: Drink menu (one per line — lines like "Wine:" work as sub-headers)
+            type: string
+            list: true
+          - name: sounds
+            label: Sounds — DJs / sets (one per line)
             type: string
             list: true
           - name: team

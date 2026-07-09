@@ -22,12 +22,6 @@
         "/photos/thestix/432960005884-R1-006.jpg",
         "/photos/thestix/432960005884-R1-007.jpg"
       ],
-      "highlights": [
-        "SOUNDS",
-        "justche",
-        "MAGS",
-        "DJSB"
-      ],
       "team": [
         "PHOTOGRAPHY",
         "Bryce Anderson - Film",
@@ -41,6 +35,11 @@
         "Yatts",
         "818 Tequila",
         "Unido Cafe "
+      ],
+      "sounds": [
+        "justche",
+        "MAGS",
+        "DJSB"
       ]
     },
     {
@@ -65,12 +64,6 @@
         "/photos/unido/000004810011.jpg",
         "/photos/unido/000004810013.jpg"
       ],
-      "highlights": [
-        "SOUNDS",
-        "WILDCHILD",
-        "justche",
-        "Ykmirr"
-      ],
       "team": [
         "Photography",
         "Bryce Anderson - Film ",
@@ -81,6 +74,11 @@
       ],
       "sponsors": [
         "Café Unido Shaw"
+      ],
+      "sounds": [
+        "WILDCHILD",
+        "justche",
+        "Ykmirr"
       ]
     },
     {
@@ -90,7 +88,7 @@
       "date": "February 2026",
       "blurb": "Washington, D.C., February 2026. ",
       "guests": "Foundry Gallery",
-      "writeup": "Washington, D.C., February 2026. Sixty guests inside Foundry Gallery — walls covered in work from local artists, the kind of room that makes you slow down and actually look. The space did the work before anyone said a word. People who didn't know each other left knowing each other. That was the point.\n\nDRINK MENU:\n\nRum Punch\n\nLemon Drop\n\n",
+      "writeup": "Washington, D.C., February 2026. Sixty guests inside Foundry Gallery — walls covered in work from local artists, the kind of room that makes you slow down and actually look. The space did the work before anyone said a word. People who didn't know each other left knowing each other. That was the point.\n",
       "thumb": "/photos/foundry/thumb.jpg",
       "photos": [
         "/photos/foundry/R1-04439-000A.jpg",
@@ -106,10 +104,6 @@
         "/photos/foundry/R1-04439-010A.jpg",
         "/photos/foundry/R1-04439-011A.jpg"
       ],
-      "highlights": [
-        "SOUNDS",
-        "justche"
-      ],
       "team": [
         "Photography",
         "Bryce Anderson - Film",
@@ -119,6 +113,13 @@
       ],
       "sponsors": [
         "Foundry Gallery "
+      ],
+      "sounds": [
+        "justche"
+      ],
+      "drinks": [
+        "Rum Punch",
+        "Lemon Drop"
       ]
     }
   ]

@@ -85,11 +85,11 @@
     },
     {
       "id": "foundry",
-      "name": "Foundry Gallery ",
-      "volume": "Series 1 - 02.28.2026 ",
+      "name": "The Pregame Series ",
+      "volume": "The Pregame Series 1 ",
       "date": "February 2026",
       "blurb": "Washington, D.C., February 2026. ",
-      "guests": "Series 1",
+      "guests": "Foundry Gallery",
       "writeup": "Washington, D.C., February 2026. Sixty guests inside Foundry Gallery — walls covered in work from local artists, the kind of room that makes you slow down and actually look. The space did the work before anyone said a word. People who didn't know each other left knowing each other. That was the point.\n\nDRINK MENU:\n\nRum Punch\n\nLemon Drop\n\n",
       "thumb": "/photos/foundry/thumb.jpg",
       "photos": [
@@ -105,6 +105,10 @@
         "/photos/foundry/R1-04439-009A.jpg",
         "/photos/foundry/R1-04439-010A.jpg",
         "/photos/foundry/R1-04439-011A.jpg"
+      ],
+      "highlights": [
+        "SOUNDS",
+        "justche"
       ],
       "team": [
         "Photography",

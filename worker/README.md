@@ -54,3 +54,14 @@ submissions keep working before you set this up.
    - `RESEND_API_KEY` — your Resend key (tick **Encrypt**)
    - `EMAIL_FROM` — e.g. `The Pregame <invite@notapregame.com>` (must be on the verified domain)
 4. **Deploy.** New submissions now get a branded confirmation email.
+
+
+## Sign-up notifications (optional)
+
+Get an email every time someone requests a spot (guest details + a link to /admin,
+reply-to set to the guest). Uses the same Resend setup as confirmations.
+
+1. In the Worker → **Settings → Variables and Secrets**, add a **Text** variable:
+   - `NOTIFY_EMAIL` — where to send alerts, e.g. `invite@notapregame.com`
+     (comma-separate for multiple: `invite@notapregame.com, che@notapregame.com`)
+2. **Deploy.** Remove the variable to turn notifications off.

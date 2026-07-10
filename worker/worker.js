@@ -98,6 +98,47 @@ async function sendConfirmation(env, data) {
   });
 }
 
+// Notify the team about a new sign-up. No-op unless NOTIFY_EMAIL is set
+// (comma-separated addresses allowed). Reply-to is set to the guest.
+async function sendTeamNotification(env, data, batch) {
+  if (!env.RESEND_API_KEY || !env.NOTIFY_EMAIL) return;
+  const to = env.NOTIFY_EMAIL.split(",").map((s) => s.trim()).filter(Boolean);
+  if (!to.length) return;
+  const from = env.EMAIL_FROM || "The Pregame <invite@notapregame.com>";
+  const first = String(data["First Name"] || "").trim();
+  const last = String(data["Last Name"] || "").trim();
+  const name = (first + " " + last).trim() || "Someone";
+  const guestEmail = String(data["Email Address"] || "").trim();
+  const fields = [
+    ["Event", batch],
+    ["Tier", data["tier"]],
+    ["Name", name],
+    ["Email", guestEmail],
+    ["Phone", data["Phone Number"]],
+    ["Instagram", data["Instagram Handle"]],
+    ["Industry", data["Industry / What You Do"]],
+    ["About", data["Tell Us About Yourself"]],
+  ].filter(([, v]) => String(v || "").trim());
+  const rowsHtml = fields.map(([k, v]) =>
+    '<tr><td style="padding:5px 14px 5px 0;font-family:monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:rgba(240,236,227,0.5);vertical-align:top;white-space:nowrap;">' +
+    escHtml(k) + '</td><td style="padding:5px 0;font-size:14px;color:#f0ece3;">' + escHtml(v) + "</td></tr>"
+  ).join("");
+  const html = emailShell(
+    '<p style="font-size:16px;line-height:1.6;margin:0 0 14px;color:#f0ece3;"><strong>' + escHtml(name) + "</strong> just requested a spot.</p>" +
+    '<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 18px;">' + rowsHtml + "</table>" +
+    '<p style="margin:0;"><a href="https://www.notapregame.com/admin" style="color:#e8d84a;text-decoration:none;font-size:13px;">Open the guest list &rarr;</a></p>'
+  );
+  const text = name + " just requested a spot.\n\n" +
+    fields.map(([k, v]) => k + ": " + v).join("\n") + "\n\nhttps://www.notapregame.com/admin";
+  const payload = { from, to, subject: "New request: " + name + (batch ? " — " + batch : ""), html, text };
+  if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(guestEmail)) payload.reply_to = guestEmail;
+  await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
 function escHtml(s) {
   return String(s == null ? "" : s).replace(/[&<>]/g, function (c) {
     return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c];
@@ -169,7 +210,10 @@ export default {
       const record = { ...data, batch: active, submittedAt: new Date().toISOString() };
       const key = record.submittedAt + "-" + crypto.randomUUID();
       await env.SUBMISSIONS.put(key, JSON.stringify(record));
-      if (ctx && ctx.waitUntil) ctx.waitUntil(sendConfirmation(env, data).catch(() => {}));
+      if (ctx && ctx.waitUntil) {
+        ctx.waitUntil(sendConfirmation(env, data).catch(() => {}));
+        ctx.waitUntil(sendTeamNotification(env, data, active).catch(() => {}));
+      }
       return json({ ok: true }, 200, headers);
     }
 

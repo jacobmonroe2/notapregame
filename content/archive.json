@@ -5,7 +5,7 @@
       "name": "The Pregame Series 3",
       "volume": "Series 3",
       "date": "April 2026",
-      "blurb": "Thankfully, Unido allowed us to run it back, but this time even bigger and better.\n\nThis event featured a sponsor, Yatts, a tattoo interface that lets artists run their businesses and customers book appointments through the app (amazing idea). They activated by giving invitees their own temporary \"Yatts\" tattoos and informing them about Yatts, while also adding a cool LED sign.\n\n818 Tequila came in, and we used them for every drink. Shout out to them!\n\nThis one was special because it proved how natural the space can be with partners.\n\nDRINK MENU\n\nCocktails made with 818 Tequila:\n\nPaloma\n\nMargarita\n\nTequila Lemon Drop\n\nTequila Carajillo\n\nTequila Espresso Martini\n\nWine:\n\nWhite\n\nRed\n\nCider\n\nBeer:\n\nSenate Lager\n\nRaised by Wolves IPA",
+      "blurb": "Thankfully, Unido allowed us to run it back, but this time even bigger and better.\n\nThis event featured a sponsor, Yatts, a tattoo interface that lets artists run their businesses and customers book appointments through the app (amazing idea). They activated by giving invitees their own temporary \"Yatts\" tattoos and informing them about Yatts, while also adding a cool LED sign.\n\n818 Tequila came in, and we used them for every drink. Shout out to them!\n\nThis one was special because it proved how natural the space can be with partners.",
       "guests": "Café Unido Shaw Part 2",
       "thumb": "/photos/thestix/thumb.jpg",
       "photos": [
@@ -22,25 +22,6 @@
         "/photos/thestix/432960005884-R1-006.jpg",
         "/photos/thestix/432960005884-R1-007.jpg"
       ],
-      "team": [
-        "PHOTOGRAPHY",
-        "Bryce Anderson - Film",
-        "Mason Daniels - Digital",
-        "Chris Smith - Film",
-        " ",
-        "VIDEOGRAPHY",
-        "Jacob Miles Monroe - Digital"
-      ],
-      "sponsors": [
-        "Yatts",
-        "818 Tequila",
-        "Unido Cafe "
-      ],
-      "sounds": [
-        "justche",
-        "MAGS",
-        "DJSB"
-      ],
       "drinks": [
         "Cocktails made with 818 Tequila:",
         "Paloma",
@@ -55,6 +36,25 @@
         "Beer:",
         "Senate Lager",
         "Raised by Wolves IPA"
+      ],
+      "sounds": [
+        "justche",
+        "MAGS",
+        "DJSB"
+      ],
+      "team": [
+        "PHOTOGRAPHY",
+        "Bryce Anderson - Film",
+        "Mason Daniels - Digital",
+        "Chris Smith - Film",
+        " ",
+        "VIDEOGRAPHY",
+        "Jacob Miles Monroe - Digital"
+      ],
+      "sponsors": [
+        "Yatts",
+        "818 Tequila",
+        "Unido Cafe "
       ]
     },
     {
@@ -79,6 +79,11 @@
         "/photos/unido/000004810011.jpg",
         "/photos/unido/000004810013.jpg"
       ],
+      "sounds": [
+        "WILDCHILD",
+        "justche",
+        "Ykmirr"
+      ],
       "team": [
         "Photography",
         "Bryce Anderson - Film ",
@@ -89,11 +94,6 @@
       ],
       "sponsors": [
         "Café Unido Shaw"
-      ],
-      "sounds": [
-        "WILDCHILD",
-        "justche",
-        "Ykmirr"
       ]
     },
     {
@@ -119,6 +119,13 @@
         "/photos/foundry/R1-04439-010A.jpg",
         "/photos/foundry/R1-04439-011A.jpg"
       ],
+      "drinks": [
+        "Rum Punch",
+        "Lemon Drop"
+      ],
+      "sounds": [
+        "justche"
+      ],
       "team": [
         "Photography",
         "Bryce Anderson - Film",
@@ -128,13 +135,6 @@
       ],
       "sponsors": [
         "Foundry Gallery "
-      ],
-      "sounds": [
-        "justche"
-      ],
-      "drinks": [
-        "Rum Punch",
-        "Lemon Drop"
       ]
     }
   ]

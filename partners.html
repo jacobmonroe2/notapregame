@@ -111,6 +111,7 @@ body {
   border: 1px solid var(--border);
   transition: border-color 0.3s, background 0.3s;
 }
+a.logo-cell { text-decoration: none; color: inherit; cursor: crosshair; }
 .logo-cell:hover { border-color: rgba(240,236,227,0.28); background: rgba(240,236,227,0.02); }
 .logo-cell img {
   max-width: 100%; max-height: 64px;
@@ -290,6 +291,9 @@ body {
       const inner = p.logo
         ? '<img src="' + esc(p.logo) + '" alt="' + esc(p.name) + '">'
         : '<span class="logo-wordmark">' + esc(p.name) + '</span>';
+      if(p.url){
+        return '<a class="logo-cell" href="' + esc(p.url) + '" target="_blank" rel="noopener" title="' + esc(p.name) + '">' + inner + '</a>';
+      }
       return '<div class="logo-cell" title="' + esc(p.name) + '">' + inner + '</div>';
     }).join('');
   }

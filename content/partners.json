@@ -2,16 +2,19 @@
   "subtitle": "Brands we've worked with",
   "past": [
     {
-      "name": "818 Tequila ",
-      "logo": "/partners/818-tequila.png"
+      "name": "818 Tequila",
+      "logo": "/partners/818-tequila.png",
+      "url": "https://drink818.com/"
     },
     {
       "name": "Yatts",
-      "logo": "/partners/yatts.png"
+      "logo": "/partners/yatts.png",
+      "url": "https://yatts.com/"
     },
     {
       "name": "APEX",
-      "logo": "/partners/APEX jpg pt 2.png"
+      "logo": "/partners/APEX jpg pt 2.png",
+      "url": "https://watchapex.com/"
     },
     {
       "name": "ONESEED",

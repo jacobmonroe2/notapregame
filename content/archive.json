@@ -1,6 +1,14 @@
 {
   "events": [
     {
+      "id": "thewinston",
+      "name": "The Winston",
+      "volume": "The Pregame Series 4",
+      "date": "May 2026",
+      "blurb": "For its Philadelphia debut, The Pregame brought curated Young Professionals under one roof, spanning tech, entertainment, sports, music, and top agencies. These are early- to mid-career professionals who are building, connected, and influential within their networks.\n\nSponsored by OneSeed Entertainment, the night featured an open bar, three DJs, and an atmosphere designed to make introductions feel effortless. \n\nWe loved this one because it was in our team’s hometown, and we were able to prove that The Pregame had demand for more sponsors and more professionals.\n\n",
+      "guests": "."
+    },
+    {
       "id": "thestix",
       "name": "The Pregame Series 3",
       "volume": "Café Unido",

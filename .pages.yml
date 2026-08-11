@@ -44,48 +44,12 @@ content:
       - name: copy
         label: Homepage text
         type: object
+        description: 'Tip: color individual words by wrapping them like {{yellow:these words}}. Colors: cream, white, yellow, gray, red, orange, green, blue, purple, pink — or a hex code like {{#e8d84a:word}}.'
         fields:
           - { name: headline, label: Headline (shown when no event is live), type: string }
           - { name: cta, label: Main button label, type: string }
           - { name: comingSoonLabel, label: "\"Coming Soon\" label", type: string }
           - { name: exclusivityNote, label: Sign-up form note, type: text }
-      - name: colors
-        label: Text colors
-        type: object
-        description: Colors for the headline and description text. Pick "Site default" to use the standard design.
-        fields:
-          - name: heading
-            label: Headline color
-            type: select
-            options:
-              values:
-                - { value: default, label: Site default }
-                - { value: "#f0ece3", label: Cream }
-                - { value: "#ffffff", label: White }
-                - { value: "#e8d84a", label: Yellow }
-                - { value: "#9aa0a6", label: Gray }
-                - { value: "#d94f3d", label: Red }
-                - { value: "#e08b3a", label: Orange }
-                - { value: "#4a9e6b", label: Green }
-                - { value: "#4a7fe8", label: Blue }
-                - { value: "#9b6be8", label: Purple }
-                - { value: "#e86bb3", label: Pink }
-          - name: body
-            label: Description text color
-            type: select
-            options:
-              values:
-                - { value: default, label: Site default }
-                - { value: "#f0ece3", label: Cream }
-                - { value: "#ffffff", label: White }
-                - { value: "#e8d84a", label: Yellow }
-                - { value: "#9aa0a6", label: Gray }
-                - { value: "#d94f3d", label: Red }
-                - { value: "#e08b3a", label: Orange }
-                - { value: "#4a9e6b", label: Green }
-                - { value: "#4a7fe8", label: Blue }
-                - { value: "#9b6be8", label: Purple }
-                - { value: "#e86bb3", label: Pink }
 
   # ---- About page ----
   - name: about
@@ -94,48 +58,12 @@ content:
     path: content/about.json
     format: json
     fields:
-      - { name: heading, label: Heading, type: string }
+      - { name: heading, label: Heading, type: string, description: 'Color individual words by wrapping them like {{yellow:these words}}.' }
       - name: paragraphs
         label: Paragraphs
         type: text
         list: true
-      - name: colors
-        label: Text colors
-        type: object
-        description: Colors for the heading and paragraph text. Pick "Site default" to use the standard design.
-        fields:
-          - name: heading
-            label: Heading color
-            type: select
-            options:
-              values:
-                - { value: default, label: Site default }
-                - { value: "#f0ece3", label: Cream }
-                - { value: "#ffffff", label: White }
-                - { value: "#e8d84a", label: Yellow }
-                - { value: "#9aa0a6", label: Gray }
-                - { value: "#d94f3d", label: Red }
-                - { value: "#e08b3a", label: Orange }
-                - { value: "#4a9e6b", label: Green }
-                - { value: "#4a7fe8", label: Blue }
-                - { value: "#9b6be8", label: Purple }
-                - { value: "#e86bb3", label: Pink }
-          - name: body
-            label: Paragraph text color
-            type: select
-            options:
-              values:
-                - { value: default, label: Site default }
-                - { value: "#f0ece3", label: Cream }
-                - { value: "#ffffff", label: White }
-                - { value: "#e8d84a", label: Yellow }
-                - { value: "#9aa0a6", label: Gray }
-                - { value: "#d94f3d", label: Red }
-                - { value: "#e08b3a", label: Orange }
-                - { value: "#4a9e6b", label: Green }
-                - { value: "#4a7fe8", label: Blue }
-                - { value: "#9b6be8", label: Purple }
-                - { value: "#e86bb3", label: Pink }
+        description: 'Color individual words by wrapping them like {{yellow:these words}}. Colors: cream, white, yellow, gray, red, orange, green, blue, purple, pink — or a hex code like {{#e8d84a:word}}.'
 
   # ---- Partners page: logos + intro + Work With Us ----
   - name: partners
@@ -144,7 +72,7 @@ content:
     path: content/partners.json
     format: json
     fields:
-      - { name: subtitle, label: Page subtitle, type: string }
+      - { name: subtitle, label: Page subtitle, type: string, description: 'Color individual words by wrapping them like {{yellow:these words}}.' }
       - name: current
         label: Current partners
         type: object
@@ -164,49 +92,13 @@ content:
       - name: workWithUs
         label: Work With Us section
         type: object
+        description: 'Tip: color individual words in the heading or body by wrapping them like {{yellow:these words}}. Colors: cream, white, yellow, gray, red, orange, green, blue, purple, pink — or a hex code like {{#e8d84a:word}}.'
         fields:
           - { name: heading, label: Heading, type: string }
           - { name: body, label: Body copy, type: text }
           - { name: email, label: Sponsorship email, type: string }
           - { name: emailLabel, label: Email button label, type: string }
           - { name: instagramLabel, label: Instagram button label, type: string }
-      - name: colors
-        label: Text colors
-        type: object
-        description: Colors for the page headings ("Partners" + "Work With Us") and the description text. Pick "Site default" to use the standard design.
-        fields:
-          - name: heading
-            label: Headings color
-            type: select
-            options:
-              values:
-                - { value: default, label: Site default }
-                - { value: "#f0ece3", label: Cream }
-                - { value: "#ffffff", label: White }
-                - { value: "#e8d84a", label: Yellow }
-                - { value: "#9aa0a6", label: Gray }
-                - { value: "#d94f3d", label: Red }
-                - { value: "#e08b3a", label: Orange }
-                - { value: "#4a9e6b", label: Green }
-                - { value: "#4a7fe8", label: Blue }
-                - { value: "#9b6be8", label: Purple }
-                - { value: "#e86bb3", label: Pink }
-          - name: body
-            label: Description text color
-            type: select
-            options:
-              values:
-                - { value: default, label: Site default }
-                - { value: "#f0ece3", label: Cream }
-                - { value: "#ffffff", label: White }
-                - { value: "#e8d84a", label: Yellow }
-                - { value: "#9aa0a6", label: Gray }
-                - { value: "#d94f3d", label: Red }
-                - { value: "#e08b3a", label: Orange }
-                - { value: "#4a9e6b", label: Green }
-                - { value: "#4a7fe8", label: Blue }
-                - { value: "#9b6be8", label: Purple }
-                - { value: "#e86bb3", label: Pink }
 
   # ---- Archive: events, photos, and blurbs ----
   - name: archive

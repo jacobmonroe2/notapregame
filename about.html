@@ -180,24 +180,32 @@ body {
 
 <script>
 (function(){
+  /* Inline color tags: "{{yellow:these words}}" or "{{#e8d84a:these words}}"
+     colors just those words; everything else keeps the site default. */
+  var COLOR_NAMES = { cream:'#f0ece3', white:'#ffffff', yellow:'#e8d84a', gray:'#9aa0a6', red:'#d94f3d', orange:'#e08b3a', green:'#4a9e6b', blue:'#4a7fe8', purple:'#9b6be8', pink:'#e86bb3' };
+  function esc(str){
+    return String(str).replace(/[&<>"]/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c];
+    });
+  }
+  function colorize(str){
+    return esc(str).replace(/\{\{(#[0-9a-fA-F]{3,8}|[a-zA-Z]+):([^{}]*)\}\}/g, function(m, color, text){
+      var col = color.charAt(0) === '#' ? color : COLOR_NAMES[color.toLowerCase()];
+      return col ? '<span style="color:' + col + '">' + text + '</span>' : text;
+    });
+  }
   fetch('content/about.json')
     .then(function(r){ return r.json(); })
     .then(function(data){
-      if(data.heading){ var h=document.getElementById('about-heading'); if(h) h.textContent=data.heading; }
+      if(data.heading){ var h=document.getElementById('about-heading'); if(h) h.innerHTML=colorize(data.heading); }
       if(Array.isArray(data.paragraphs) && data.paragraphs.length){
         var body=document.getElementById('about-body');
         if(body){
           body.innerHTML = data.paragraphs.map(function(p){
-            return '<p>' + String(p).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}) + '</p>';
+            return '<p>' + colorize(p) + '</p>';
           }).join('');
         }
       }
-      var ok=function(v){ return /^#[0-9a-fA-F]{3,8}$/.test(v || ''); };
-      var c=data.colors || {};
-      var css='';
-      if(ok(c.heading)) css += '.about-heading { color: ' + c.heading + '; }';
-      if(ok(c.body)) css += '.about-body p { color: ' + c.body + '; }';
-      if(css){ var st=document.createElement('style'); st.textContent=css; document.head.appendChild(st); }
     })
     .catch(function(){ /* keep static fallback copy */ });
 })();

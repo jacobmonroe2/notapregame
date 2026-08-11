@@ -726,14 +726,27 @@ a.btm:hover { opacity:1; }
      team edits through the CMS — no code changes or redeploys needed.
      (That file controls the event, the city ticker, and Coming Soon.)
      ──────────────────────────────────────────────────────────── */
+  /* Inline color tags: "{{yellow:these words}}" or "{{#e8d84a:these words}}"
+     colors just those words; everything else keeps the site default. */
+  const COLOR_NAMES = { cream:'#f0ece3', white:'#ffffff', yellow:'#e8d84a', gray:'#9aa0a6', red:'#d94f3d', orange:'#e08b3a', green:'#4a9e6b', blue:'#4a7fe8', purple:'#9b6be8', pink:'#e86bb3' };
+  function escHtml(str){
+    return String(str).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+  }
+  function colorize(str){
+    return escHtml(str).replace(/\{\{(#[0-9a-fA-F]{3,8}|[a-zA-Z]+):([^{}]*)\}\}/g, function(m, color, text){
+      const col = color.charAt(0) === '#' ? color : COLOR_NAMES[color.toLowerCase()];
+      return col ? '<span style="color:' + col + '">' + text + '</span>' : text;
+    });
+  }
+
   function applyConfig(CONFIG){
     const ev = CONFIG.event || {};
     const copy = CONFIG.copy || {};
     const label = document.getElementById('event-label');
     if(label){
-      label.textContent = (ev.active && ev.city && ev.date)
+      label.innerHTML = colorize((ev.active && ev.city && ev.date)
         ? ev.city + ' — ' + ev.date
-        : (copy.headline || 'The Next One Is Coming');
+        : (copy.headline || 'The Next One Is Coming'));
     }
     const venue = document.getElementById('event-venue');
     if(venue){
@@ -743,7 +756,7 @@ a.btm:hover { opacity:1; }
     const cta = document.getElementById('open-signup');
     if(cta && copy.cta){ cta.textContent = copy.cta; }
     const note = document.getElementById('exclusivity-note');
-    if(note && copy.exclusivityNote){ note.textContent = copy.exclusivityNote; }
+    if(note && copy.exclusivityNote){ note.innerHTML = colorize(copy.exclusivityNote); }
     const ticker = document.getElementById('city-ticker');
     if(ticker && CONFIG.operatingCities && CONFIG.operatingCities.length){
       ticker.textContent = CONFIG.operatingCities.join(' — ');
@@ -752,21 +765,11 @@ a.btm:hover { opacity:1; }
     if(exp){
       const cities = CONFIG.expansionCities || [];
       if(cities.length){
-        exp.textContent = (copy.comingSoonLabel || 'Coming Soon') + ' — ' + cities.join(' · ');
+        exp.innerHTML = colorize((copy.comingSoonLabel || 'Coming Soon') + ' — ' + cities.join(' · '));
         exp.style.display = '';
       } else {
         exp.style.display = 'none';
       }
-    }
-    const okColor = v => /^#[0-9a-fA-F]{3,8}$/.test(v || '');
-    const colors = CONFIG.colors || {};
-    let colorCss = '';
-    if(okColor(colors.heading)) colorCss += '#event-label { color: ' + colors.heading + '; }';
-    if(okColor(colors.body)) colorCss += '#exclusivity-note, #expansion-line { color: ' + colors.body + '; }';
-    if(colorCss){
-      const st = document.createElement('style');
-      st.textContent = colorCss;
-      document.head.appendChild(st);
     }
   }
   fetch('content/home.json')

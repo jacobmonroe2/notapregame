@@ -192,6 +192,12 @@ body {
           }).join('');
         }
       }
+      var ok=function(v){ return /^#[0-9a-fA-F]{3,8}$/.test(v || ''); };
+      var c=data.colors || {};
+      var css='';
+      if(ok(c.heading)) css += '.about-heading { color: ' + c.heading + '; }';
+      if(ok(c.body)) css += '.about-body p { color: ' + c.body + '; }';
+      if(css){ var st=document.createElement('style'); st.textContent=css; document.head.appendChild(st); }
     })
     .catch(function(){ /* keep static fallback copy */ });
 })();

@@ -27,5 +27,9 @@
     "email": "inquiries@notapregame.com",
     "emailLabel": "Email Us",
     "instagramLabel": "DM on Instagram"
+  },
+  "colors": {
+    "heading": "default",
+    "body": "default"
   }
 }

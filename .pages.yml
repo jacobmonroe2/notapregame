@@ -49,6 +49,43 @@ content:
           - { name: cta, label: Main button label, type: string }
           - { name: comingSoonLabel, label: "\"Coming Soon\" label", type: string }
           - { name: exclusivityNote, label: Sign-up form note, type: text }
+      - name: colors
+        label: Text colors
+        type: object
+        description: Colors for the headline and description text. Pick "Site default" to use the standard design.
+        fields:
+          - name: heading
+            label: Headline color
+            type: select
+            options:
+              values:
+                - { value: default, label: Site default }
+                - { value: "#f0ece3", label: Cream }
+                - { value: "#ffffff", label: White }
+                - { value: "#e8d84a", label: Yellow }
+                - { value: "#9aa0a6", label: Gray }
+                - { value: "#d94f3d", label: Red }
+                - { value: "#e08b3a", label: Orange }
+                - { value: "#4a9e6b", label: Green }
+                - { value: "#4a7fe8", label: Blue }
+                - { value: "#9b6be8", label: Purple }
+                - { value: "#e86bb3", label: Pink }
+          - name: body
+            label: Description text color
+            type: select
+            options:
+              values:
+                - { value: default, label: Site default }
+                - { value: "#f0ece3", label: Cream }
+                - { value: "#ffffff", label: White }
+                - { value: "#e8d84a", label: Yellow }
+                - { value: "#9aa0a6", label: Gray }
+                - { value: "#d94f3d", label: Red }
+                - { value: "#e08b3a", label: Orange }
+                - { value: "#4a9e6b", label: Green }
+                - { value: "#4a7fe8", label: Blue }
+                - { value: "#9b6be8", label: Purple }
+                - { value: "#e86bb3", label: Pink }
 
   # ---- About page ----
   - name: about
@@ -62,6 +99,43 @@ content:
         label: Paragraphs
         type: text
         list: true
+      - name: colors
+        label: Text colors
+        type: object
+        description: Colors for the heading and paragraph text. Pick "Site default" to use the standard design.
+        fields:
+          - name: heading
+            label: Heading color
+            type: select
+            options:
+              values:
+                - { value: default, label: Site default }
+                - { value: "#f0ece3", label: Cream }
+                - { value: "#ffffff", label: White }
+                - { value: "#e8d84a", label: Yellow }
+                - { value: "#9aa0a6", label: Gray }
+                - { value: "#d94f3d", label: Red }
+                - { value: "#e08b3a", label: Orange }
+                - { value: "#4a9e6b", label: Green }
+                - { value: "#4a7fe8", label: Blue }
+                - { value: "#9b6be8", label: Purple }
+                - { value: "#e86bb3", label: Pink }
+          - name: body
+            label: Paragraph text color
+            type: select
+            options:
+              values:
+                - { value: default, label: Site default }
+                - { value: "#f0ece3", label: Cream }
+                - { value: "#ffffff", label: White }
+                - { value: "#e8d84a", label: Yellow }
+                - { value: "#9aa0a6", label: Gray }
+                - { value: "#d94f3d", label: Red }
+                - { value: "#e08b3a", label: Orange }
+                - { value: "#4a9e6b", label: Green }
+                - { value: "#4a7fe8", label: Blue }
+                - { value: "#9b6be8", label: Purple }
+                - { value: "#e86bb3", label: Pink }
 
   # ---- Partners page: logos + intro + Work With Us ----
   - name: partners
@@ -78,6 +152,7 @@ content:
         fields:
           - { name: name, label: Brand name, type: string }
           - { name: logo, label: Logo image (optional), type: image, options: { media: partners }, description: "Leave empty to show the brand name as text." }
+          - { name: url, label: Website link (optional), type: string, description: "Full address including https:// — the tile links here." }
       - name: past
         label: Past partners
         type: object
@@ -85,6 +160,7 @@ content:
         fields:
           - { name: name, label: Brand name, type: string }
           - { name: logo, label: Logo image (optional), type: image, options: { media: partners } }
+          - { name: url, label: Website link (optional), type: string, description: "Full address including https:// — the tile links here." }
       - name: workWithUs
         label: Work With Us section
         type: object
@@ -94,6 +170,43 @@ content:
           - { name: email, label: Sponsorship email, type: string }
           - { name: emailLabel, label: Email button label, type: string }
           - { name: instagramLabel, label: Instagram button label, type: string }
+      - name: colors
+        label: Text colors
+        type: object
+        description: Colors for the page headings ("Partners" + "Work With Us") and the description text. Pick "Site default" to use the standard design.
+        fields:
+          - name: heading
+            label: Headings color
+            type: select
+            options:
+              values:
+                - { value: default, label: Site default }
+                - { value: "#f0ece3", label: Cream }
+                - { value: "#ffffff", label: White }
+                - { value: "#e8d84a", label: Yellow }
+                - { value: "#9aa0a6", label: Gray }
+                - { value: "#d94f3d", label: Red }
+                - { value: "#e08b3a", label: Orange }
+                - { value: "#4a9e6b", label: Green }
+                - { value: "#4a7fe8", label: Blue }
+                - { value: "#9b6be8", label: Purple }
+                - { value: "#e86bb3", label: Pink }
+          - name: body
+            label: Description text color
+            type: select
+            options:
+              values:
+                - { value: default, label: Site default }
+                - { value: "#f0ece3", label: Cream }
+                - { value: "#ffffff", label: White }
+                - { value: "#e8d84a", label: Yellow }
+                - { value: "#9aa0a6", label: Gray }
+                - { value: "#d94f3d", label: Red }
+                - { value: "#e08b3a", label: Orange }
+                - { value: "#4a9e6b", label: Green }
+                - { value: "#4a7fe8", label: Blue }
+                - { value: "#9b6be8", label: Purple }
+                - { value: "#e86bb3", label: Pink }
 
   # ---- Archive: events, photos, and blurbs ----
   - name: archive

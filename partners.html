@@ -298,6 +298,19 @@ a.logo-cell { text-decoration: none; color: inherit; cursor: crosshair; }
     }).join('');
   }
 
+  function applyColors(colors){
+    var ok = function(v){ return /^#[0-9a-fA-F]{3,8}$/.test(v || ''); };
+    var c = colors || {};
+    var css = '';
+    if(ok(c.heading)) css += '.hero h1, .work-heading { color: ' + c.heading + '; }';
+    if(ok(c.body)) css += '.hero-sub, .work-body { color: ' + c.body + '; }';
+    if(css){
+      var st = document.createElement('style');
+      st.textContent = css;
+      document.head.appendChild(st);
+    }
+  }
+
   function applyText(data){
     if(data.subtitle){ var s=document.getElementById('partners-sub'); if(s) s.textContent=data.subtitle; }
     var w=data.workWithUs||{};
@@ -315,6 +328,7 @@ a.logo-cell { text-decoration: none; color: inherit; cursor: crosshair; }
       renderGroup('group-current', 'grid-current', PARTNERS.current);
       renderGroup('group-past', 'grid-past', PARTNERS.past);
       applyText(PARTNERS);
+      applyColors(PARTNERS.colors);
     })
     .catch(function(){
       var gc = document.getElementById('group-current');

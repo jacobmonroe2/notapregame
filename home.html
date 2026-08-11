@@ -758,6 +758,16 @@ a.btm:hover { opacity:1; }
         exp.style.display = 'none';
       }
     }
+    const okColor = v => /^#[0-9a-fA-F]{3,8}$/.test(v || '');
+    const colors = CONFIG.colors || {};
+    let colorCss = '';
+    if(okColor(colors.heading)) colorCss += '#event-label { color: ' + colors.heading + '; }';
+    if(okColor(colors.body)) colorCss += '#exclusivity-note, #expansion-line { color: ' + colors.body + '; }';
+    if(colorCss){
+      const st = document.createElement('style');
+      st.textContent = colorCss;
+      document.head.appendChild(st);
+    }
   }
   fetch('content/home.json')
     .then(function(r){ return r.json(); })

@@ -86,7 +86,13 @@
         "Lemon Drop",
         "Carajillo",
         "Espresso Martini",
-        "WINE:"
+        "WINE:",
+        "White",
+        "Red",
+        "Cider",
+        "BEER:",
+        "Senate Lager",
+        "Raised by Wolves IPA"
       ],
       "sounds": [
         "WILDCHILD",

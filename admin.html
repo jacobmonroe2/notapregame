@@ -189,6 +189,16 @@ th.check, td.check { width:34px; text-align:center; }
     <input id="add-subject" type="text">
     <label>Message</label>
     <textarea id="add-message" style="min-height:110px;"></textarea>
+    <label>Flyer (optional)</label>
+    <div class="flyer-row">
+      <button class="ctl" type="button" id="add-flyer-pick">Add flyer image</button>
+      <input id="add-flyer-file" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+      <div class="flyer-preview" id="add-flyer-preview" hidden>
+        <img id="add-flyer-img" alt="Flyer preview">
+        <button class="del" type="button" id="add-flyer-remove" title="Remove flyer">&times;</button>
+      </div>
+      <p class="flyer-note" id="add-flyer-note" hidden></p>
+    </div>
     <div class="cmp-row">
       <button class="ctl" id="add-cancel">Cancel</button>
       <button class="ctl" id="add-save">Add only</button>
@@ -398,21 +408,23 @@ th.check, td.check { width:34px; text-align:center; }
     document.getElementById('cmp-who').textContent = 'To '+recips.length+' guest'+(recips.length===1?'':'s')+(selCount()?' selected':' shown');
     document.getElementById('cmp-subject').value = "You're invited — The Pregame";
     document.getElementById('cmp-message').value = defaultInvite();
-    clearFlyer();
+    clearFlyer('flyer');
     document.getElementById('cmp-overlay').classList.add('open');
   }
 
-  /* ── flyer upload (downscaled client-side, stored on the Worker) ── */
-  var flyerBlob=null, flyerType='';
-  function clearFlyer(){
-    flyerBlob=null; flyerType='';
-    var img=document.getElementById('flyer-img');
+  /* ── flyer upload (downscaled client-side, stored on the Worker) ──
+     Two independent pickers share this code: 'flyer' in the Send invite
+     compose, 'add-flyer' in the Add guest form. */
+  var flyerState={ 'flyer':{blob:null,type:''}, 'add-flyer':{blob:null,type:''} };
+  function clearFlyer(prefix){
+    var st=flyerState[prefix]; st.blob=null; st.type='';
+    var img=document.getElementById(prefix+'-img');
     if(img.src) URL.revokeObjectURL(img.src);
     img.removeAttribute('src');
-    document.getElementById('flyer-preview').hidden=true;
-    document.getElementById('flyer-note').hidden=true;
-    document.getElementById('flyer-file').value='';
-    document.getElementById('flyer-pick').textContent='Add flyer image';
+    document.getElementById(prefix+'-preview').hidden=true;
+    document.getElementById(prefix+'-note').hidden=true;
+    document.getElementById(prefix+'-file').value='';
+    document.getElementById(prefix+'-pick').textContent='Add flyer image';
   }
   // Downscale to <=1000px wide; keep PNG when it stays small, else JPEG.
   function prepFlyer(file){
@@ -436,24 +448,25 @@ th.check, td.check { width:34px; text-align:center; }
       img.src=URL.createObjectURL(file);
     });
   }
-  function onFlyerPicked(){
-    var file=this.files && this.files[0];
+  function onFlyerPicked(prefix, input){
+    var file=input.files && input.files[0];
     if(!file) return;
     prepFlyer(file).then(function(out){
-      flyerBlob=out.blob; flyerType=out.type;
-      var img=document.getElementById('flyer-img');
+      var st=flyerState[prefix]; st.blob=out.blob; st.type=out.type;
+      var img=document.getElementById(prefix+'-img');
       if(img.src) URL.revokeObjectURL(img.src);
-      img.src=URL.createObjectURL(flyerBlob);
-      document.getElementById('flyer-preview').hidden=false;
-      var note=document.getElementById('flyer-note');
-      note.textContent='Sent at the top of the email · '+Math.round(flyerBlob.size/1024)+' KB';
+      img.src=URL.createObjectURL(st.blob);
+      document.getElementById(prefix+'-preview').hidden=false;
+      var note=document.getElementById(prefix+'-note');
+      note.textContent='Sent at the top of the email · '+Math.round(st.blob.size/1024)+' KB';
       note.hidden=false;
-      document.getElementById('flyer-pick').textContent='Change flyer';
-    }).catch(function(){ alert('Could not read that image — try a PNG or JPEG.'); clearFlyer(); });
+      document.getElementById(prefix+'-pick').textContent='Change flyer';
+    }).catch(function(){ alert('Could not read that image — try a PNG or JPEG.'); clearFlyer(prefix); });
   }
-  function uploadFlyer(){
-    if(!flyerBlob || DEMO) return Promise.resolve('');
-    return fetch(API+'/flyer', { method:'POST', headers:{ 'Authorization':'Bearer '+code, 'Content-Type':flyerType }, body:flyerBlob })
+  function uploadFlyer(prefix){
+    var st=flyerState[prefix];
+    if(!st.blob || DEMO) return Promise.resolve('');
+    return fetch(API+'/flyer', { method:'POST', headers:{ 'Authorization':'Bearer '+code, 'Content-Type':st.type }, body:st.blob })
       .then(function(r){
         if(r.status===401||r.status===403) throw new Error('unauthorized');
         if(!r.ok) throw new Error('http '+r.status);
@@ -467,7 +480,7 @@ th.check, td.check { width:34px; text-align:center; }
     var subject=document.getElementById('cmp-subject').value.trim();
     var message=document.getElementById('cmp-message').value;
     var btn=document.getElementById('cmp-send'); btn.disabled=true; btn.textContent='Sending…';
-    uploadFlyer()
+    uploadFlyer('flyer')
       .then(function(flyerUrl){
         return api('/invite', { method:'POST', body:JSON.stringify({ recipients:recips, subject:subject, message:message, flyer:flyerUrl }) });
       })
@@ -475,7 +488,7 @@ th.check, td.check { width:34px; text-align:center; }
         document.getElementById('cmp-overlay').classList.remove('open');
         var n = (res && res.sent!=null) ? res.sent : recips.length;
         alert('Invite sent to '+n+' guest'+(n===1?'':'s')+'.');
-        clearFlyer();
+        clearFlyer('flyer');
       })
       .catch(function(e){ alert(e && e.message==='unauthorized' ? 'Session expired — log in again.' : 'Send failed — is email set up in the Worker (RESEND_API_KEY)?'); })
       .finally(function(){ btn.disabled=false; btn.textContent='Send'; });
@@ -497,6 +510,7 @@ th.check, td.check { width:34px; text-align:center; }
     document.getElementById('add-tier').value='General';
     document.getElementById('add-subject').value = "You're invited — The Pregame";
     document.getElementById('add-message').value = defaultInvite();
+    clearFlyer('add-flyer');
     document.getElementById('add-overlay').classList.add('open');
     document.getElementById('add-first').focus();
   }
@@ -525,11 +539,15 @@ th.check, td.check { width:34px; text-align:center; }
     api('/add', { method:'POST', body:JSON.stringify({ batch:batch, fields:fields }) })
       .then(function(){
         if(!sendAlso){ done(first+' added to “'+batch+'”.'); return; }
-        return api('/invite', { method:'POST', body:JSON.stringify({
-          recipients:[{ email:email, first:first }],
-          subject:document.getElementById('add-subject').value.trim(),
-          message:document.getElementById('add-message').value
-        }) })
+        return uploadFlyer('add-flyer')
+        .then(function(flyerUrl){
+          return api('/invite', { method:'POST', body:JSON.stringify({
+            recipients:[{ email:email, first:first }],
+            subject:document.getElementById('add-subject').value.trim(),
+            message:document.getElementById('add-message').value,
+            flyer:flyerUrl
+          }) });
+        })
         .then(function(){ done(first+' added to “'+batch+'” — invite sent.'); })
         .catch(function(){ done(first+' was added to “'+batch+'”, but the invite failed to send — is email set up in the Worker (RESEND_API_KEY)? You can select them in the list and use Send invite to retry.'); });
       })
@@ -569,9 +587,11 @@ th.check, td.check { width:34px; text-align:center; }
   document.getElementById('add-save').addEventListener('click', function(){ addGuest(false); });
   document.getElementById('add-send').addEventListener('click', function(){ addGuest(true); });
   document.getElementById('add-overlay').addEventListener('click', function(e){ if(e.target.id==='add-overlay') this.classList.remove('open'); });
-  document.getElementById('flyer-pick').addEventListener('click', function(){ document.getElementById('flyer-file').click(); });
-  document.getElementById('flyer-file').addEventListener('change', onFlyerPicked);
-  document.getElementById('flyer-remove').addEventListener('click', clearFlyer);
+  ['flyer','add-flyer'].forEach(function(prefix){
+    document.getElementById(prefix+'-pick').addEventListener('click', function(){ document.getElementById(prefix+'-file').click(); });
+    document.getElementById(prefix+'-file').addEventListener('change', function(){ onFlyerPicked(prefix, this); });
+    document.getElementById(prefix+'-remove').addEventListener('click', function(){ clearFlyer(prefix); });
+  });
   document.getElementById('cmp-cancel').addEventListener('click', function(){ document.getElementById('cmp-overlay').classList.remove('open'); });
   document.getElementById('cmp-send').addEventListener('click', sendInvite);
   document.getElementById('cmp-overlay').addEventListener('click', function(e){ if(e.target.id==='cmp-overlay') this.classList.remove('open'); });

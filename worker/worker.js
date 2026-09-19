@@ -197,11 +197,15 @@ function escAttr(s) {
   return escHtml(s).replace(/"/g, "&quot;");
 }
 
-// Wrap body HTML in the branded email card (logo bottom-right).
-function emailShell(bodyHtml) {
+// Wrap body HTML in the branded email card (logo bottom-right). An optional
+// full-bleed hero (e.g. the event flyer) sits flush at the top of the card,
+// separated from the message by a hairline, so it reads as one piece.
+function emailShell(bodyHtml, heroHtml) {
   return '<!doctype html><html><head><meta charset="utf-8"></head><body style="margin:0;background:#060606;font-family:Arial,Helvetica,sans-serif;">' +
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#060606;padding:32px 16px;"><tr><td align="center">' +
-    '<table role="presentation" cellpadding="0" cellspacing="0" style="max-width:480px;width:100%;background:#0e0e0e;border:1px solid rgba(240,236,227,0.12);"><tr><td style="padding:32px;">' +
+    '<table role="presentation" cellpadding="0" cellspacing="0" style="max-width:480px;width:100%;background:#0e0e0e;border:1px solid rgba(240,236,227,0.12);">' +
+    (heroHtml ? '<tr><td style="padding:0;border-bottom:1px solid rgba(240,236,227,0.12);">' + heroHtml + '</td></tr>' : '') +
+    '<tr><td style="padding:32px;">' +
     '<div style="height:3px;width:42px;background:#e8d84a;margin-bottom:24px;"></div>' +
     bodyHtml +
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:28px;"><tr>' +
@@ -218,13 +222,13 @@ function emailShell(bodyHtml) {
 
 function inviteHtml(first, message, flyer) {
   const hi = first ? "Hey " + escHtml(first) + "," : "Hey,";
-  const flyerImg = flyer
-    ? '<img src="' + escAttr(flyer) + '" alt="Event flyer" style="display:block;width:100%;height:auto;margin:0 0 22px;">'
+  const hero = flyer
+    ? '<img src="' + escAttr(flyer) + '" alt="Event flyer" style="display:block;width:100%;height:auto;">'
     : "";
   const paras = String(message || "").split(/\n\s*\n/).map(function (p) {
     return '<p style="font-size:15px;line-height:1.7;margin:0 0 16px;color:rgba(240,236,227,0.85);">' + escHtml(p).replace(/\n/g, "<br>") + "</p>";
   }).join("");
-  return emailShell(flyerImg + '<p style="font-size:16px;line-height:1.6;margin:0 0 16px;color:#f0ece3;">' + hi + "</p>" + paras);
+  return emailShell('<p style="font-size:16px;line-height:1.6;margin:0 0 16px;color:#f0ece3;">' + hi + "</p>" + paras, hero);
 }
 function inviteText(first, message, flyer) {
   return (first ? "Hey " + first + ",\n\n" : "") + String(message || "") +

@@ -342,7 +342,7 @@ export default {
     }
 
     // ---- everything below requires the admin passcode ----
-    const adminPaths = ["/list", "/batches", "/batch", "/add", "/delete", "/clear", "/invite", "/flyer", "/migrate"];
+    const adminPaths = ["/list", "/batches", "/batch", "/add", "/delete", "/clear", "/invite", "/flyer", "/migrate", "/mcsms"];
     if (adminPaths.includes(url.pathname)) {
       if (!authed(request, env)) return new Response("Unauthorized", { status: 401, headers });
     }
@@ -389,6 +389,28 @@ export default {
     // One-time migration: copy every submission (and the active batch name)
     // from another Pregame Worker into this one's KV. Records keep their
     // original keys, so re-running it is safe — no duplicates.
+    // Diagnostic: run the Mailchimp SMS-subscriber registration for one
+    // contact and return Mailchimp's raw response, so rejections (which the
+    // background sync swallows) become visible.
+    if (url.pathname === "/mcsms" && request.method === "POST") {
+      let body; try { body = await request.json(); } catch { return json({ error: "invalid JSON" }, 400, headers); }
+      if (!env.MAILCHIMP_API_KEY || !env.MAILCHIMP_AUDIENCE_ID) return json({ error: "mailchimp not configured" }, 400, headers);
+      const email = String((body && body.email) || "").trim().toLowerCase();
+      const e164 = toE164(body && body.phone);
+      if (!email || !e164) return json({ error: "email and a valid phone required", e164 }, 400, headers);
+      const dc = env.MAILCHIMP_API_KEY.split("-").pop();
+      const digest = await crypto.subtle.digest("MD5", new TextEncoder().encode(email));
+      const hash = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+      const res = await fetch("https://" + dc + ".api.mailchimp.com/3.0/lists/" + env.MAILCHIMP_AUDIENCE_ID + "/members/" + hash, {
+        method: "PATCH",
+        headers: { "Authorization": "Basic " + btoa("key:" + env.MAILCHIMP_API_KEY), "Content-Type": "application/json" },
+        body: JSON.stringify({ sms_phone_number: e164, sms_subscription_status: "subscribed" }),
+      });
+      const raw = await res.text();
+      let parsed; try { parsed = JSON.parse(raw); } catch { parsed = raw; }
+      return json({ status: res.status, sent_phone: e164, mailchimp: parsed }, 200, headers);
+    }
+
     if (url.pathname === "/migrate" && request.method === "POST") {
       let body; try { body = await request.json(); } catch { return json({ error: "invalid JSON" }, 400, headers); }
       const src = String((body && body.sourceUrl) || "").trim().replace(/\/+$/, "");

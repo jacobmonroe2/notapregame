@@ -67,6 +67,24 @@ keys), and embedded at the top of the invite email via its public
 `GET /flyer/<id>` URL. No extra setup — it uses the existing KV binding and
 Resend config. To update, paste the newest `worker.js` and **Deploy**.
 
+## Mailchimp sync (optional)
+
+Every sign-up (and every guest added by hand from /admin) is also added as a
+contact in a Mailchimp audience, tagged with their event batch and tier — so
+you can send newsletters/campaigns from Mailchimp against an always-current
+list. Invite and confirmation emails still go through Resend. The Worker
+does nothing until both variables are set.
+
+1. In Mailchimp: profile icon → **Account & billing** → **Extras → API keys** →
+   create a key (it ends in a datacenter code like `-us21`).
+2. Find your **Audience ID**: **Audience → Settings → Audience name and defaults**.
+3. In the Worker → **Settings → Variables and Secrets**, add:
+   - `MAILCHIMP_API_KEY` — the API key (tick **Encrypt**)
+   - `MAILCHIMP_AUDIENCE_ID` — the audience ID (plain **Text** is fine)
+4. **Deploy.** New guests appear in Mailchimp automatically. For guests who
+   signed up *before* this was enabled, export the CSV from /admin and use
+   Mailchimp's **Audience → Import contacts** once.
+
 ## Sign-up notifications (optional)
 
 Get an email every time someone requests a spot (guest details + a link to /admin,

@@ -233,6 +233,17 @@ a.btm:hover { opacity:1; }
 .field input::placeholder { color:rgba(240,236,227,0.18); }
 .field input:focus { border-color:rgba(240,236,227,0.32); }
 
+.consent-field { margin:-0.55rem 0 1.15rem; }
+.consent-field label {
+  display:flex; align-items:center; gap:0.55rem;
+  font-family:'Space Mono',monospace;
+  font-size:0.53rem; letter-spacing:0.14em; text-transform:uppercase;
+  color:rgba(240,236,227,0.4); cursor:pointer; margin:0;
+}
+.consent-field input[type=checkbox] {
+  width:14px; height:14px; flex:none; accent-color:#e8d84a; cursor:pointer; margin:0;
+}
+
 .field select {
   width:100%; background:rgba(255,255,255,0.04);
   border:1px solid rgba(240,236,227,0.1);
@@ -650,6 +661,7 @@ a.btm:hover { opacity:1; }
       </div>
       <div class="field"><label>Email Address</label><input type="email" placeholder="you@email.com"></div>
       <div class="field"><label>Phone Number</label><input type="tel" placeholder="+1 (212) 000-0000"></div>
+      <div class="consent-field"><label><input type="checkbox" class="sms-ok"> OK to text me about events (msg &amp; data rates may apply)</label></div>
       <div class="field"><label>Instagram Handle</label><input type="text" placeholder="@yourhandle"></div>
       <div class="field"><label>Industry / What You Do</label>
         <select class="industry-select">
@@ -681,6 +693,7 @@ a.btm:hover { opacity:1; }
       </div>
       <div class="field"><label>Email Address</label><input type="email" placeholder="you@email.com"></div>
       <div class="field"><label>Phone Number</label><input type="tel" placeholder="+1 (212) 000-0000"></div>
+      <div class="consent-field"><label><input type="checkbox" class="sms-ok"> OK to text me about events (msg &amp; data rates may apply)</label></div>
       <div class="field"><label>Instagram Handle</label><input type="text" placeholder="@yourhandle"></div>
       <div class="field"><label>Industry / What You Do</label>
         <select class="industry-select">
@@ -826,6 +839,8 @@ a.btm:hover { opacity:1; }
 
   function collectData(formEl,tier){
     const data={tier};
+    const smsOk=formEl.querySelector('.sms-ok');
+    data['SMS Consent']=(smsOk && smsOk.checked)?'Yes':'';
     formEl.querySelectorAll('.field').forEach(field=>{
       const label=field.querySelector('label')?.textContent?.trim();
       if(!label || label==='Friends & Family Password') return;

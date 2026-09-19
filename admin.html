@@ -94,6 +94,13 @@ th.check, td.check { width:34px; text-align:center; }
 .cmp-overlay { position:fixed; inset:0; z-index:100; background:rgba(0,0,0,0.78); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; padding:1.5rem; }
 .cmp-overlay.open { display:flex; }
 .cmp { width:min(520px,94vw); max-height:92vh; overflow-y:auto; background:#0e0e0e; border:1px solid var(--border); padding:1.8rem; }
+.cmp.wide { width:min(920px,94vw); }
+.cmp .cols { display:grid; grid-template-columns:1fr 1fr; column-gap:2.2rem; }
+.cmp .col-note { font-family:'Space Mono',monospace; font-size:0.55rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--dim); margin-bottom:1rem; }
+@media (max-width:760px){
+  .cmp .cols { grid-template-columns:1fr; }
+  .cmp .cols > div + div { border-top:1px solid var(--border); padding-top:1.1rem; }
+}
 .cmp h2 { font-family:'Syne'; font-weight:800; font-size:1.2rem; margin-bottom:0.3rem; }
 .cmp .who { font-family:'Space Mono',monospace; font-size:0.6rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--yellow); margin-bottom:1.3rem; }
 .cmp label { display:block; font-family:'Space Mono',monospace; font-size:0.55rem; letter-spacing:0.16em; text-transform:uppercase; color:var(--dim); margin:0 0 0.4rem; }
@@ -105,11 +112,10 @@ th.check, td.check { width:34px; text-align:center; }
 .cmp select option { background:#0e0e0e; color:var(--white); }
 .cmp .row2 { display:flex; gap:0.9rem; }
 .cmp .row2 > div { flex:1; min-width:0; }
-.cmp .section-note { font-family:'Space Mono',monospace; font-size:0.55rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--dim); border-top:1px solid var(--border); padding-top:1.1rem; margin-bottom:1rem; }
 .cmp-row { display:flex; flex-wrap:wrap; gap:0.7rem; justify-content:flex-end; }
 .flyer-row { margin-bottom:1.1rem; }
-.flyer-preview { position:relative; margin-top:0.7rem; max-width:200px; }
-.flyer-preview img { display:block; width:100%; border:1px solid var(--border); }
+.flyer-preview { position:relative; margin-top:0.7rem; max-width:200px; display:inline-block; }
+.flyer-preview img { display:block; max-width:100%; max-height:150px; border:1px solid var(--border); }
 .flyer-preview .del { position:absolute; top:4px; right:4px; background:rgba(0,0,0,0.65); color:var(--white); }
 .flyer-note { font-family:'Space Mono',monospace; font-size:0.55rem; letter-spacing:0.08em; color:rgba(240,236,227,0.35); margin-top:0.5rem; }
 </style>
@@ -165,39 +171,46 @@ th.check, td.check { width:34px; text-align:center; }
 
 <!-- ADD GUEST (people who haven't signed up themselves) -->
 <div class="cmp-overlay" id="add-overlay">
-  <div class="cmp">
+  <div class="cmp wide">
     <h2>Add guest</h2>
     <p class="who">For people who haven&rsquo;t signed up on the guest list</p>
-    <div class="row2">
-      <div><label>First name</label><input id="add-first" type="text"></div>
-      <div><label>Last name</label><input id="add-last" type="text"></div>
-    </div>
-    <label>Email address</label>
-    <input id="add-email" type="email" placeholder="name@example.com">
-    <div class="row2">
-      <div><label>Phone number</label><input id="add-phone" type="text"></div>
-      <div><label>Instagram handle</label><input id="add-ig" type="text" placeholder="@handle"></div>
-    </div>
-    <label>Industry / what they do</label>
-    <input id="add-industry" type="text">
-    <div class="row2">
-      <div><label>Tier</label><select id="add-tier"><option>General</option><option>Friends &amp; Family</option></select></div>
-      <div><label>Event</label><select id="add-batch"></select></div>
-    </div>
-    <p class="section-note">Invite email (only used with &ldquo;Add &amp; send invite&rdquo;)</p>
-    <label>Subject</label>
-    <input id="add-subject" type="text">
-    <label>Message</label>
-    <textarea id="add-message" style="min-height:110px;"></textarea>
-    <label>Flyer (optional)</label>
-    <div class="flyer-row">
-      <button class="ctl" type="button" id="add-flyer-pick">Add flyer image</button>
-      <input id="add-flyer-file" type="file" accept="image/png,image/jpeg,image/webp" hidden>
-      <div class="flyer-preview" id="add-flyer-preview" hidden>
-        <img id="add-flyer-img" alt="Flyer preview">
-        <button class="del" type="button" id="add-flyer-remove" title="Remove flyer">&times;</button>
+    <div class="cols">
+      <div>
+        <p class="col-note">Guest details</p>
+        <div class="row2">
+          <div><label>First name</label><input id="add-first" type="text"></div>
+          <div><label>Last name</label><input id="add-last" type="text"></div>
+        </div>
+        <label>Email address</label>
+        <input id="add-email" type="email" placeholder="name@example.com">
+        <div class="row2">
+          <div><label>Phone number</label><input id="add-phone" type="text"></div>
+          <div><label>Instagram handle</label><input id="add-ig" type="text" placeholder="@handle"></div>
+        </div>
+        <label>Industry / what they do</label>
+        <input id="add-industry" type="text">
+        <div class="row2">
+          <div><label>Tier</label><select id="add-tier"><option>General</option><option>Friends &amp; Family</option></select></div>
+          <div><label>Event</label><select id="add-batch"></select></div>
+        </div>
       </div>
-      <p class="flyer-note" id="add-flyer-note" hidden></p>
+      <div>
+        <p class="col-note">Invite email &mdash; only used with &ldquo;Add &amp; send invite&rdquo;</p>
+        <label>Subject</label>
+        <input id="add-subject" type="text">
+        <label>Message</label>
+        <textarea id="add-message" style="min-height:130px;"></textarea>
+        <label>Flyer (optional)</label>
+        <div class="flyer-row">
+          <button class="ctl" type="button" id="add-flyer-pick">Add flyer image</button>
+          <input id="add-flyer-file" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+          <div class="flyer-preview" id="add-flyer-preview" hidden>
+            <img id="add-flyer-img" alt="Flyer preview">
+            <button class="del" type="button" id="add-flyer-remove" title="Remove flyer">&times;</button>
+          </div>
+          <p class="flyer-note" id="add-flyer-note" hidden></p>
+        </div>
+      </div>
     </div>
     <div class="cmp-row">
       <button class="ctl" id="add-cancel">Cancel</button>

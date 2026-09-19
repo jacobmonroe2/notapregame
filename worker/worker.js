@@ -5,6 +5,7 @@
  *   GET   /list        [admin] All submissions, each with _key + batch. ?batch= to filter.
  *   GET   /batches     [admin] { active, batches: [{ name, count }] }
  *   POST  /batch       [admin] { name }  — set the active batch (new submissions go here).
+ *   POST  /add         [admin] { batch?, fields } — add a guest by hand (no sign-up emails sent).
  *   POST  /delete      [admin] { key }   — delete one submission.
  *   POST  /clear       [admin] { batch } — delete every submission in a batch.
  *   POST  /invite      [admin] { recipients, subject, message, flyer? } — email invites.
@@ -247,7 +248,7 @@ export default {
     }
 
     // ---- everything below requires the admin passcode ----
-    const adminPaths = ["/list", "/batches", "/batch", "/delete", "/clear", "/invite", "/flyer"];
+    const adminPaths = ["/list", "/batches", "/batch", "/add", "/delete", "/clear", "/invite", "/flyer"];
     if (adminPaths.includes(url.pathname)) {
       if (!authed(request, env)) return new Response("Unauthorized", { status: 401, headers });
     }
@@ -275,6 +276,19 @@ export default {
       if (!name) return json({ error: "name required" }, 400, headers);
       await env.SUBMISSIONS.put(ACTIVE_KEY, name);
       return json({ ok: true, active: name }, 200, headers);
+    }
+
+    // Admin adds a guest who never signed up themselves. Unlike the public
+    // POST /, this sends no confirmation or team-notification emails.
+    if (url.pathname === "/add" && request.method === "POST") {
+      let body; try { body = await request.json(); } catch { return json({ error: "invalid JSON" }, 400, headers); }
+      const fields = (body && typeof body.fields === "object" && body.fields) || {};
+      const batch = String((body && body.batch) || "").trim()
+        || (await env.SUBMISSIONS.get(ACTIVE_KEY)) || DEFAULT_BATCH;
+      const record = { ...fields, batch, source: "manual", submittedAt: new Date().toISOString() };
+      const key = record.submittedAt + "-" + crypto.randomUUID();
+      await env.SUBMISSIONS.put(key, JSON.stringify(record));
+      return json({ ok: true, key }, 200, headers);
     }
 
     if (url.pathname === "/delete" && request.method === "POST") {

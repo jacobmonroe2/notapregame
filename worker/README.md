@@ -7,6 +7,8 @@ admin page (`/admin`) behind a passcode.
 - `GET /list` — all submissions (admin)
 - `GET /batches` — event batches + which is active (admin)
 - `POST /batch` — start / switch the active event batch (admin)
+- `POST /add` — add a guest by hand from the admin page, for people who never
+  signed up themselves (admin; sends no sign-up emails)
 - `POST /delete` / `POST /clear` — remove one submission, or a whole batch (admin)
 
 **Updating later:** paste the newest `worker.js` and **Deploy** — your KV binding

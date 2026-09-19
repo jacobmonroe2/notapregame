@@ -249,18 +249,37 @@ function emailShell(bodyHtml, heroHtml) {
     '</td></tr></table></td></tr></table></body></html>';
 }
 
+// Turn links in already-escaped invite text into branded anchors.
+// Supports [label](https://url) for labeled links, plus bare https:// and
+// www. URLs. Trailing sentence punctuation stays outside the link.
+function linkify(escaped) {
+  function anchor(url, label) {
+    const href = (/^https?:\/\//i.test(url) ? url : "https://" + url).replace(/"/g, "&quot;");
+    return '<a href="' + href + '" style="color:#e8d84a;text-decoration:underline;">' + label + "</a>";
+  }
+  return escaped
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/gi, function (_, label, url) {
+      return anchor(url, label);
+    })
+    .replace(/(^|\s)((?:https?:\/\/|www\.)[^\s<]+?)([.,!?;:)]*)(?=\s|$)/gi, function (_, pre, url, punct) {
+      return pre + anchor(url, url) + punct;
+    });
+}
+
 function inviteHtml(first, message, flyer) {
   const hi = first ? "Hey " + escHtml(first) + "," : "Hey,";
   const hero = flyer
     ? '<img src="' + escAttr(flyer) + '" alt="Event flyer" style="display:block;width:100%;height:auto;">'
     : "";
   const paras = String(message || "").split(/\n\s*\n/).map(function (p) {
-    return '<p style="font-size:15px;line-height:1.7;margin:0 0 16px;color:rgba(240,236,227,0.85);">' + escHtml(p).replace(/\n/g, "<br>") + "</p>";
+    return '<p style="font-size:15px;line-height:1.7;margin:0 0 16px;color:rgba(240,236,227,0.85);">' + linkify(escHtml(p)).replace(/\n/g, "<br>") + "</p>";
   }).join("");
   return emailShell('<p style="font-size:16px;line-height:1.6;margin:0 0 16px;color:#f0ece3;">' + hi + "</p>" + paras, hero);
 }
 function inviteText(first, message, flyer) {
-  return (first ? "Hey " + first + ",\n\n" : "") + String(message || "") +
+  // Plain-text fallback: unwrap [label](url) into "label (url)".
+  const msg = String(message || "").replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/gi, "$1 ($2)");
+  return (first ? "Hey " + first + ",\n\n" : "") + msg +
     (flyer ? "\n\nFlyer: " + flyer : "") + "\n\n— The Pregame\ninstagram.com/notapregame";
 }
 

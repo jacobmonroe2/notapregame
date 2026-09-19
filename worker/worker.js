@@ -6,6 +6,7 @@
  *   GET   /batches     [admin] { active, batches: [{ name, count }] }
  *   POST  /batch       [admin] { name }  — set the active batch (new submissions go here).
  *   POST  /add         [admin] { batch?, fields } — add a guest by hand (no sign-up emails sent).
+ *   POST  /migrate     [admin] { sourceUrl, sourceKey } — copy all submissions from another Pregame Worker.
  *   POST  /delete      [admin] { key }   — delete one submission.
  *   POST  /clear       [admin] { batch } — delete every submission in a batch.
  *   POST  /invite      [admin] { recipients, subject, message, flyer? } — email invites.
@@ -248,7 +249,7 @@ export default {
     }
 
     // ---- everything below requires the admin passcode ----
-    const adminPaths = ["/list", "/batches", "/batch", "/add", "/delete", "/clear", "/invite", "/flyer"];
+    const adminPaths = ["/list", "/batches", "/batch", "/add", "/delete", "/clear", "/invite", "/flyer", "/migrate"];
     if (adminPaths.includes(url.pathname)) {
       if (!authed(request, env)) return new Response("Unauthorized", { status: 401, headers });
     }
@@ -289,6 +290,35 @@ export default {
       const key = record.submittedAt + "-" + crypto.randomUUID();
       await env.SUBMISSIONS.put(key, JSON.stringify(record));
       return json({ ok: true, key }, 200, headers);
+    }
+
+    // One-time migration: copy every submission (and the active batch name)
+    // from another Pregame Worker into this one's KV. Records keep their
+    // original keys, so re-running it is safe — no duplicates.
+    if (url.pathname === "/migrate" && request.method === "POST") {
+      let body; try { body = await request.json(); } catch { return json({ error: "invalid JSON" }, 400, headers); }
+      const src = String((body && body.sourceUrl) || "").trim().replace(/\/+$/, "");
+      const srcKey = String((body && body.sourceKey) || "");
+      if (!/^https:\/\//.test(src) || !srcKey) return json({ error: "sourceUrl and sourceKey required" }, 400, headers);
+      const auth = { headers: { "Authorization": "Bearer " + srcKey } };
+      const listRes = await fetch(src + "/list", auth);
+      if (!listRes.ok) return json({ error: "source /list failed (" + listRes.status + ")" }, 502, headers);
+      const rows = await listRes.json();
+      if (!Array.isArray(rows)) return json({ error: "unexpected source response" }, 502, headers);
+      let copied = 0;
+      for (const r of rows) {
+        const k = r && r._key;
+        if (!k || String(k).startsWith("__")) continue;
+        const rec = { ...r };
+        delete rec._key;
+        await env.SUBMISSIONS.put(k, JSON.stringify(rec));
+        copied++;
+      }
+      try {
+        const bRes = await fetch(src + "/batches", auth);
+        if (bRes.ok) { const b = await bRes.json(); if (b && b.active) await env.SUBMISSIONS.put(ACTIVE_KEY, b.active); }
+      } catch {}
+      return json({ ok: true, copied }, 200, headers);
     }
 
     if (url.pathname === "/delete" && request.method === "POST") {

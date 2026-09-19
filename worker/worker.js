@@ -177,8 +177,9 @@ async function syncToMailchimp(env, data, batch) {
       },
     }),
   });
+  const smsOk = /^y/i.test(String(data["SMS Consent"] || "").trim());
   const tags = [batch, data["tier"]].map((t) => String(t || "").trim()).filter(Boolean);
-  if (/^y/i.test(String(data["SMS Consent"] || "").trim())) tags.push("SMS OK");
+  if (smsOk) tags.push("SMS OK");
   if (tags.length) {
     await fetch(base + "/tags", {
       method: "POST",
@@ -186,6 +187,33 @@ async function syncToMailchimp(env, data, batch) {
       body: JSON.stringify({ tags: tags.map((name) => ({ name, status: "active" })) }),
     });
   }
+  // For guests who ticked the SMS consent box, also register their number as
+  // an SMS subscriber (Mailchimp texts only "SMS Marketing: subscribed"
+  // contacts, via the dedicated SMS phone field in E.164 format). Done as a
+  // separate best-effort call: accounts without SMS enabled reject these
+  // fields, and that must not undo the contact sync above.
+  if (smsOk) {
+    const e164 = toE164(data["Phone Number"]);
+    if (e164) {
+      await fetch(base, {
+        method: "PATCH",
+        headers: authHeaders,
+        body: JSON.stringify({ sms_phone_number: e164, sms_subscription_status: "subscribed" }),
+      }).catch(() => {});
+    }
+  }
+}
+
+// Normalize a US-style phone number to E.164 (+1XXXXXXXXXX); returns "" if
+// it can't be made unambiguous.
+function toE164(raw) {
+  const s = String(raw || "").trim();
+  const plus = s.startsWith("+");
+  const digits = s.replace(/\D/g, "");
+  if (plus && digits.length >= 11 && digits.length <= 15) return "+" + digits;
+  if (digits.length === 11 && digits[0] === "1") return "+" + digits;
+  if (digits.length === 10) return "+1" + digits;
+  return "";
 }
 
 function escHtml(s) {

@@ -147,6 +147,46 @@ async function sendTeamNotification(env, data, batch) {
   });
 }
 
+// Add/update a guest as a Mailchimp audience contact, tagged with their
+// event batch and tier. No-op until MAILCHIMP_API_KEY and
+// MAILCHIMP_AUDIENCE_ID are set, so nothing breaks before Mailchimp is
+// configured. Invite/confirmation emails still go through Resend.
+async function syncToMailchimp(env, data, batch) {
+  if (!env.MAILCHIMP_API_KEY || !env.MAILCHIMP_AUDIENCE_ID) return;
+  const email = String((data && data["Email Address"]) || "").trim().toLowerCase();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return;
+  const dc = env.MAILCHIMP_API_KEY.split("-").pop();
+  if (!/^[a-z]+\d+$/.test(dc)) return; // key must end in the datacenter, e.g. -us21
+  const digest = await crypto.subtle.digest("MD5", new TextEncoder().encode(email));
+  const hash = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+  const base = "https://" + dc + ".api.mailchimp.com/3.0/lists/" + env.MAILCHIMP_AUDIENCE_ID + "/members/" + hash;
+  const authHeaders = {
+    "Authorization": "Basic " + btoa("key:" + env.MAILCHIMP_API_KEY),
+    "Content-Type": "application/json",
+  };
+  await fetch(base, {
+    method: "PUT", // upsert: creates the contact or updates an existing one
+    headers: authHeaders,
+    body: JSON.stringify({
+      email_address: email,
+      status_if_new: "subscribed",
+      merge_fields: {
+        FNAME: String(data["First Name"] || "").trim(),
+        LNAME: String(data["Last Name"] || "").trim(),
+        PHONE: String(data["Phone Number"] || "").trim(),
+      },
+    }),
+  });
+  const tags = [batch, data["tier"]].map((t) => String(t || "").trim()).filter(Boolean);
+  if (tags.length) {
+    await fetch(base + "/tags", {
+      method: "POST",
+      headers: authHeaders,
+      body: JSON.stringify({ tags: tags.map((name) => ({ name, status: "active" })) }),
+    });
+  }
+}
+
 function escHtml(s) {
   return String(s == null ? "" : s).replace(/[&<>]/g, function (c) {
     return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c];
@@ -229,6 +269,7 @@ export default {
       if (ctx && ctx.waitUntil) {
         ctx.waitUntil(sendConfirmation(env, data).catch(() => {}));
         ctx.waitUntil(sendTeamNotification(env, data, active).catch(() => {}));
+        ctx.waitUntil(syncToMailchimp(env, data, active).catch(() => {}));
       }
       return json({ ok: true }, 200, headers);
     }
@@ -289,6 +330,7 @@ export default {
       const record = { ...fields, batch, source: "manual", submittedAt: new Date().toISOString() };
       const key = record.submittedAt + "-" + crypto.randomUUID();
       await env.SUBMISSIONS.put(key, JSON.stringify(record));
+      if (ctx && ctx.waitUntil) ctx.waitUntil(syncToMailchimp(env, fields, batch).catch(() => {}));
       return json({ ok: true, key }, 200, headers);
     }
 

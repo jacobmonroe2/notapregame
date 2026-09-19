@@ -93,14 +93,20 @@ td.tier-ff { color:var(--yellow); }
 th.check, td.check { width:34px; text-align:center; }
 .cmp-overlay { position:fixed; inset:0; z-index:100; background:rgba(0,0,0,0.78); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; padding:1.5rem; }
 .cmp-overlay.open { display:flex; }
-.cmp { width:min(520px,94vw); background:#0e0e0e; border:1px solid var(--border); padding:1.8rem; }
+.cmp { width:min(520px,94vw); max-height:92vh; overflow-y:auto; background:#0e0e0e; border:1px solid var(--border); padding:1.8rem; }
 .cmp h2 { font-family:'Syne'; font-weight:800; font-size:1.2rem; margin-bottom:0.3rem; }
 .cmp .who { font-family:'Space Mono',monospace; font-size:0.6rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--yellow); margin-bottom:1.3rem; }
 .cmp label { display:block; font-family:'Space Mono',monospace; font-size:0.55rem; letter-spacing:0.16em; text-transform:uppercase; color:var(--dim); margin:0 0 0.4rem; }
 .cmp input, .cmp textarea { width:100%; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--white); padding:0.7rem 0.9rem; font-family:'Syne'; font-size:0.9rem; outline:none; margin-bottom:1.1rem; }
 .cmp textarea { min-height:150px; line-height:1.5; resize:vertical; }
 .cmp input:focus, .cmp textarea:focus { border-color:rgba(240,236,227,0.32); }
-.cmp-row { display:flex; gap:0.7rem; justify-content:flex-end; }
+.cmp select { width:100%; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--white); padding:0.7rem 0.9rem; font-family:'Syne'; font-size:0.9rem; outline:none; margin-bottom:1.1rem; }
+.cmp select:focus { border-color:rgba(240,236,227,0.32); }
+.cmp select option { background:#0e0e0e; color:var(--white); }
+.cmp .row2 { display:flex; gap:0.9rem; }
+.cmp .row2 > div { flex:1; min-width:0; }
+.cmp .section-note { font-family:'Space Mono',monospace; font-size:0.55rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--dim); border-top:1px solid var(--border); padding-top:1.1rem; margin-bottom:1rem; }
+.cmp-row { display:flex; flex-wrap:wrap; gap:0.7rem; justify-content:flex-end; }
 </style>
 </head>
 <body>
@@ -130,6 +136,7 @@ th.check, td.check { width:34px; text-align:center; }
     <div class="controls">
       <input class="ctl" id="search" type="text" placeholder="Search…">
       <select class="ctl" id="tier"><option value="">All tiers</option></select>
+      <button class="ctl" id="add-guest">+ Add guest</button>
       <button class="ctl primary" id="send-invite">Send invite</button>
       <button class="ctl" id="csv">Export CSV</button>
       <button class="ctl" id="refresh">Refresh</button>
@@ -149,6 +156,40 @@ th.check, td.check { width:34px; text-align:center; }
 
   <div class="table-wrap"><div id="table"></div></div>
   <p class="hint">Submissions land in the active batch. Start a new event to send incoming requests to a fresh box; past events stay intact. Read-only otherwise; data lives on the Pregame Worker.</p>
+</div>
+
+<!-- ADD GUEST (people who haven't signed up themselves) -->
+<div class="cmp-overlay" id="add-overlay">
+  <div class="cmp">
+    <h2>Add guest</h2>
+    <p class="who">For people who haven&rsquo;t signed up on the guest list</p>
+    <div class="row2">
+      <div><label>First name</label><input id="add-first" type="text"></div>
+      <div><label>Last name</label><input id="add-last" type="text"></div>
+    </div>
+    <label>Email address</label>
+    <input id="add-email" type="email" placeholder="name@example.com">
+    <div class="row2">
+      <div><label>Phone number</label><input id="add-phone" type="text"></div>
+      <div><label>Instagram handle</label><input id="add-ig" type="text" placeholder="@handle"></div>
+    </div>
+    <label>Industry / what they do</label>
+    <input id="add-industry" type="text">
+    <div class="row2">
+      <div><label>Tier</label><select id="add-tier"><option>General</option><option>Friends &amp; Family</option></select></div>
+      <div><label>Event</label><select id="add-batch"></select></div>
+    </div>
+    <p class="section-note">Invite email (only used with &ldquo;Add &amp; send invite&rdquo;)</p>
+    <label>Subject</label>
+    <input id="add-subject" type="text">
+    <label>Message</label>
+    <textarea id="add-message" style="min-height:110px;"></textarea>
+    <div class="cmp-row">
+      <button class="ctl" id="add-cancel">Cancel</button>
+      <button class="ctl" id="add-save">Add only</button>
+      <button class="ctl primary" id="add-send">Add &amp; send invite</button>
+    </div>
+  </div>
 </div>
 
 <div class="cmp-overlay" id="cmp-overlay">
@@ -177,7 +218,7 @@ th.check, td.check { width:34px; text-align:center; }
 
   var gate=document.getElementById('gate'), app=document.getElementById('app');
   var pass=document.getElementById('passcode'), err=document.getElementById('err');
-  var rows=[], active='', view='', code='', selected={};
+  var rows=[], active='', view='', code='', selected={}, batchList=[];
   var DEMO = /[?&]demo/.test(location.search);
 
   function esc(v){ return String(v==null?'':v).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
@@ -216,6 +257,11 @@ th.check, td.check { width:34px; text-align:center; }
       return Promise.resolve({active:demoState.active, batches:Object.keys(counts).map(function(n){return {name:n,count:counts[n]};})});
     }
     if(path==='/batch'){ demoState.active=body.name; return Promise.resolve({ok:true,active:body.name}); }
+    if(path==='/add'){
+      demoState.rows.unshift(Object.assign({_key:'m'+Date.now(), batch:body.batch||demoState.active, source:'manual',
+        submittedAt:new Date().toISOString().slice(0,16).replace('T',' ')}, body.fields||{}));
+      return Promise.resolve({ok:true});
+    }
     if(path==='/delete'){ demoState.rows=demoState.rows.filter(function(r){return r._key!==body.key;}); return Promise.resolve({ok:true}); }
     if(path==='/clear'){ demoState.rows=demoState.rows.filter(function(r){return r.batch!==body.batch;}); return Promise.resolve({ok:true}); }
     if(path==='/invite'){ return Promise.resolve({ok:true, sent:(body.recipients||[]).length}); }
@@ -262,6 +308,7 @@ th.check, td.check { width:34px; text-align:center; }
     sel.innerHTML = values.map(function(o){ return '<option value="'+esc(o.value)+'"'+(o.value===current?' selected':'')+'>'+esc(o.label)+'</option>'; }).join('');
   }
   function refreshUI(batches){
+    batchList = batches;
     document.getElementById('active-name').textContent = active || '—';
     var opts=[{value:'',label:'All events'}].concat(batches.map(function(b){
       return {value:b.name, label:b.name+' ('+b.count+')'+(b.name===active?' • active':'')};
@@ -333,10 +380,9 @@ th.check, td.check { width:34px; text-align:center; }
   function openCompose(){
     var recips=recipientsForInvite();
     if(!recips.length){ alert('No valid email addresses in that selection.'); return; }
-    var ev = active || view || 'the event';
     document.getElementById('cmp-who').textContent = 'To '+recips.length+' guest'+(recips.length===1?'':'s')+(selCount()?' selected':' shown');
     document.getElementById('cmp-subject').value = "You're invited — The Pregame";
-    document.getElementById('cmp-message').value = "You're in.\n\n"+ev+" — [date], [location].\n\nMore details to follow. Keep this one close.\n\nSee you in the room.";
+    document.getElementById('cmp-message').value = defaultInvite();
     document.getElementById('cmp-overlay').classList.add('open');
   }
   function sendInvite(){
@@ -352,6 +398,62 @@ th.check, td.check { width:34px; text-align:center; }
       })
       .catch(function(e){ alert(e && e.message==='unauthorized' ? 'Session expired — log in again.' : 'Send failed — is email set up in the Worker (RESEND_API_KEY)?'); })
       .finally(function(){ btn.disabled=false; btn.textContent='Send'; });
+  }
+
+  /* ── add guest by hand ── */
+  function defaultInvite(){
+    var ev = active || view || 'the event';
+    return "You're in.\n\n"+ev+" — [date], [location].\n\nMore details to follow. Keep this one close.\n\nSee you in the room.";
+  }
+  function openAdd(){
+    var names = batchList.map(function(b){return b.name;});
+    if(active && names.indexOf(active)<0) names.unshift(active);
+    if(!names.length) names=['Unsorted'];
+    fillSelect(document.getElementById('add-batch'),
+      names.map(function(n){ return {value:n, label:n+(n===active?' • active':'')}; }),
+      active || names[0]);
+    ['add-first','add-last','add-email','add-phone','add-ig','add-industry'].forEach(function(id){ document.getElementById(id).value=''; });
+    document.getElementById('add-tier').value='General';
+    document.getElementById('add-subject').value = "You're invited — The Pregame";
+    document.getElementById('add-message').value = defaultInvite();
+    document.getElementById('add-overlay').classList.add('open');
+    document.getElementById('add-first').focus();
+  }
+  function addGuest(sendAlso){
+    var first=document.getElementById('add-first').value.trim();
+    var email=document.getElementById('add-email').value.trim();
+    if(!first){ alert('First name is required.'); return; }
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ alert('A valid email address is required.'); return; }
+    var batch=document.getElementById('add-batch').value;
+    var fields={
+      'First Name':first,
+      'Last Name':document.getElementById('add-last').value.trim(),
+      'Email Address':email,
+      'Phone Number':document.getElementById('add-phone').value.trim(),
+      'Instagram Handle':document.getElementById('add-ig').value.trim(),
+      'Industry / What You Do':document.getElementById('add-industry').value.trim(),
+      tier:document.getElementById('add-tier').value
+    };
+    var btn=document.getElementById(sendAlso?'add-send':'add-save');
+    var old=btn.textContent; btn.disabled=true; btn.textContent=sendAlso?'Sending…':'Saving…';
+    function done(msg){
+      document.getElementById('add-overlay').classList.remove('open');
+      alert(msg);
+      load().catch(function(){});
+    }
+    api('/add', { method:'POST', body:JSON.stringify({ batch:batch, fields:fields }) })
+      .then(function(){
+        if(!sendAlso){ done(first+' added to “'+batch+'”.'); return; }
+        return api('/invite', { method:'POST', body:JSON.stringify({
+          recipients:[{ email:email, first:first }],
+          subject:document.getElementById('add-subject').value.trim(),
+          message:document.getElementById('add-message').value
+        }) })
+        .then(function(){ done(first+' added to “'+batch+'” — invite sent.'); })
+        .catch(function(){ done(first+' was added to “'+batch+'”, but the invite failed to send — is email set up in the Worker (RESEND_API_KEY)? You can select them in the list and use Send invite to retry.'); });
+      })
+      .catch(alertErr)
+      .finally(function(){ btn.disabled=false; btn.textContent=old; });
   }
 
   /* ── wire up ── */
@@ -381,6 +483,11 @@ th.check, td.check { width:34px; text-align:center; }
     }
   });
   document.getElementById('send-invite').addEventListener('click', openCompose);
+  document.getElementById('add-guest').addEventListener('click', openAdd);
+  document.getElementById('add-cancel').addEventListener('click', function(){ document.getElementById('add-overlay').classList.remove('open'); });
+  document.getElementById('add-save').addEventListener('click', function(){ addGuest(false); });
+  document.getElementById('add-send').addEventListener('click', function(){ addGuest(true); });
+  document.getElementById('add-overlay').addEventListener('click', function(e){ if(e.target.id==='add-overlay') this.classList.remove('open'); });
   document.getElementById('cmp-cancel').addEventListener('click', function(){ document.getElementById('cmp-overlay').classList.remove('open'); });
   document.getElementById('cmp-send').addEventListener('click', sendInvite);
   document.getElementById('cmp-overlay').addEventListener('click', function(e){ if(e.target.id==='cmp-overlay') this.classList.remove('open'); });

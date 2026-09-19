@@ -101,6 +101,11 @@ th.check, td.check { width:34px; text-align:center; }
 .cmp textarea { min-height:150px; line-height:1.5; resize:vertical; }
 .cmp input:focus, .cmp textarea:focus { border-color:rgba(240,236,227,0.32); }
 .cmp-row { display:flex; gap:0.7rem; justify-content:flex-end; }
+.flyer-row { margin-bottom:1.1rem; }
+.flyer-preview { position:relative; margin-top:0.7rem; max-width:200px; }
+.flyer-preview img { display:block; width:100%; border:1px solid var(--border); }
+.flyer-preview .del { position:absolute; top:4px; right:4px; background:rgba(0,0,0,0.65); color:var(--white); }
+.flyer-note { font-family:'Space Mono',monospace; font-size:0.55rem; letter-spacing:0.08em; color:rgba(240,236,227,0.35); margin-top:0.5rem; }
 </style>
 </head>
 <body>
@@ -159,6 +164,16 @@ th.check, td.check { width:34px; text-align:center; }
     <input id="cmp-subject" type="text">
     <label>Message</label>
     <textarea id="cmp-message"></textarea>
+    <label>Flyer (optional)</label>
+    <div class="flyer-row">
+      <button class="ctl" type="button" id="flyer-pick">Add flyer image</button>
+      <input id="flyer-file" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+      <div class="flyer-preview" id="flyer-preview" hidden>
+        <img id="flyer-img" alt="Flyer preview">
+        <button class="del" type="button" id="flyer-remove" title="Remove flyer">&times;</button>
+      </div>
+      <p class="flyer-note" id="flyer-note" hidden></p>
+    </div>
     <div class="cmp-row">
       <button class="ctl" id="cmp-cancel">Cancel</button>
       <button class="ctl primary" id="cmp-send">Send</button>
@@ -337,18 +352,84 @@ th.check, td.check { width:34px; text-align:center; }
     document.getElementById('cmp-who').textContent = 'To '+recips.length+' guest'+(recips.length===1?'':'s')+(selCount()?' selected':' shown');
     document.getElementById('cmp-subject').value = "You're invited — The Pregame";
     document.getElementById('cmp-message').value = "You're in.\n\n"+ev+" — [date], [location].\n\nMore details to follow. Keep this one close.\n\nSee you in the room.";
+    clearFlyer();
     document.getElementById('cmp-overlay').classList.add('open');
   }
+
+  /* ── flyer upload (downscaled client-side, stored on the Worker) ── */
+  var flyerBlob=null, flyerType='';
+  function clearFlyer(){
+    flyerBlob=null; flyerType='';
+    var img=document.getElementById('flyer-img');
+    if(img.src) URL.revokeObjectURL(img.src);
+    img.removeAttribute('src');
+    document.getElementById('flyer-preview').hidden=true;
+    document.getElementById('flyer-note').hidden=true;
+    document.getElementById('flyer-file').value='';
+    document.getElementById('flyer-pick').textContent='Add flyer image';
+  }
+  // Downscale to <=1000px wide; keep PNG when it stays small, else JPEG.
+  function prepFlyer(file){
+    return new Promise(function(resolve,reject){
+      var img=new Image();
+      img.onload=function(){
+        var MAX=1000, scale=Math.min(1, MAX/img.naturalWidth);
+        if(scale===1 && file.size<=1024*1024){ URL.revokeObjectURL(img.src); resolve({blob:file, type:file.type}); return; }
+        var c=document.createElement('canvas');
+        c.width=Math.round(img.naturalWidth*scale); c.height=Math.round(img.naturalHeight*scale);
+        c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+        URL.revokeObjectURL(img.src);
+        var isPng=file.type==='image/png';
+        c.toBlob(function(b){
+          if(!b){ reject(new Error('resize failed')); return; }
+          if(!isPng || b.size<=1024*1024){ resolve({blob:b, type:b.type}); return; }
+          c.toBlob(function(j){ j?resolve({blob:j, type:'image/jpeg'}):reject(new Error('resize failed')); },'image/jpeg',0.85);
+        }, isPng?'image/png':'image/jpeg', 0.85);
+      };
+      img.onerror=function(){ URL.revokeObjectURL(img.src); reject(new Error('bad image')); };
+      img.src=URL.createObjectURL(file);
+    });
+  }
+  function onFlyerPicked(){
+    var file=this.files && this.files[0];
+    if(!file) return;
+    prepFlyer(file).then(function(out){
+      flyerBlob=out.blob; flyerType=out.type;
+      var img=document.getElementById('flyer-img');
+      if(img.src) URL.revokeObjectURL(img.src);
+      img.src=URL.createObjectURL(flyerBlob);
+      document.getElementById('flyer-preview').hidden=false;
+      var note=document.getElementById('flyer-note');
+      note.textContent='Sent at the top of the email · '+Math.round(flyerBlob.size/1024)+' KB';
+      note.hidden=false;
+      document.getElementById('flyer-pick').textContent='Change flyer';
+    }).catch(function(){ alert('Could not read that image — try a PNG or JPEG.'); clearFlyer(); });
+  }
+  function uploadFlyer(){
+    if(!flyerBlob || DEMO) return Promise.resolve('');
+    return fetch(API+'/flyer', { method:'POST', headers:{ 'Authorization':'Bearer '+code, 'Content-Type':flyerType }, body:flyerBlob })
+      .then(function(r){
+        if(r.status===401||r.status===403) throw new Error('unauthorized');
+        if(!r.ok) throw new Error('http '+r.status);
+        return r.json();
+      })
+      .then(function(j){ return (j && j.url) || ''; });
+  }
+
   function sendInvite(){
     var recips=recipientsForInvite(); if(!recips.length) return;
     var subject=document.getElementById('cmp-subject').value.trim();
     var message=document.getElementById('cmp-message').value;
     var btn=document.getElementById('cmp-send'); btn.disabled=true; btn.textContent='Sending…';
-    api('/invite', { method:'POST', body:JSON.stringify({ recipients:recips, subject:subject, message:message }) })
+    uploadFlyer()
+      .then(function(flyerUrl){
+        return api('/invite', { method:'POST', body:JSON.stringify({ recipients:recips, subject:subject, message:message, flyer:flyerUrl }) });
+      })
       .then(function(res){
         document.getElementById('cmp-overlay').classList.remove('open');
         var n = (res && res.sent!=null) ? res.sent : recips.length;
         alert('Invite sent to '+n+' guest'+(n===1?'':'s')+'.');
+        clearFlyer();
       })
       .catch(function(e){ alert(e && e.message==='unauthorized' ? 'Session expired — log in again.' : 'Send failed — is email set up in the Worker (RESEND_API_KEY)?'); })
       .finally(function(){ btn.disabled=false; btn.textContent='Send'; });
@@ -381,6 +462,9 @@ th.check, td.check { width:34px; text-align:center; }
     }
   });
   document.getElementById('send-invite').addEventListener('click', openCompose);
+  document.getElementById('flyer-pick').addEventListener('click', function(){ document.getElementById('flyer-file').click(); });
+  document.getElementById('flyer-file').addEventListener('change', onFlyerPicked);
+  document.getElementById('flyer-remove').addEventListener('click', clearFlyer);
   document.getElementById('cmp-cancel').addEventListener('click', function(){ document.getElementById('cmp-overlay').classList.remove('open'); });
   document.getElementById('cmp-send').addEventListener('click', sendInvite);
   document.getElementById('cmp-overlay').addEventListener('click', function(e){ if(e.target.id==='cmp-overlay') this.classList.remove('open'); });

@@ -56,6 +56,15 @@ submissions keep working before you set this up.
 4. **Deploy.** New submissions now get a branded confirmation email.
 
 
+## Invite flyers
+
+The "Send invite" compose on `/admin` has an **Add flyer image** button. The image
+is downscaled in the browser (max 1000px wide), uploaded to the Worker
+(`POST /flyer`, stored in the same `SUBMISSIONS` KV namespace under `__flyer__*`
+keys), and embedded at the top of the invite email via its public
+`GET /flyer/<id>` URL. No extra setup — it uses the existing KV binding and
+Resend config. To update, paste the newest `worker.js` and **Deploy**.
+
 ## Sign-up notifications (optional)
 
 Get an email every time someone requests a spot (guest details + a link to /admin,

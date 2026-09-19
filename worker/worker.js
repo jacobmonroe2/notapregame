@@ -7,6 +7,9 @@
  *   POST  /batch       [admin] { name }  — set the active batch (new submissions go here).
  *   POST  /delete      [admin] { key }   — delete one submission.
  *   POST  /clear       [admin] { batch } — delete every submission in a batch.
+ *   POST  /invite      [admin] { recipients, subject, message, flyer? } — email invites.
+ *   POST  /flyer       [admin] raw image body — store a flyer, returns { url }.
+ *   GET   /flyer/<id>  Serve a stored flyer (public; email clients fetch these).
  *   OPTIONS *          CORS preflight.
  *
  * Bindings/secrets (see worker/README.md):
@@ -18,6 +21,9 @@
 const ALLOWED_ORIGINS = ["https://notapregame.com", "https://www.notapregame.com"];
 const ACTIVE_KEY = "__active__";       // KV key holding the current batch name
 const DEFAULT_BATCH = "Unsorted";
+const FLYER_PREFIX = "__flyer__";      // KV keys for stored flyer images
+const FLYER_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
+const FLYER_MAX_BYTES = 4 * 1024 * 1024;
 
 function cors(request, env) {
   const origin = request.headers.get("Origin") || "";
@@ -145,6 +151,10 @@ function escHtml(s) {
   });
 }
 
+function escAttr(s) {
+  return escHtml(s).replace(/"/g, "&quot;");
+}
+
 // Wrap body HTML in the branded email card (logo bottom-right).
 function emailShell(bodyHtml) {
   return '<!doctype html><html><head><meta charset="utf-8"></head><body style="margin:0;background:#060606;font-family:Arial,Helvetica,sans-serif;">' +
@@ -164,26 +174,30 @@ function emailShell(bodyHtml) {
     '</td></tr></table></td></tr></table></body></html>';
 }
 
-function inviteHtml(first, message) {
+function inviteHtml(first, message, flyer) {
   const hi = first ? "Hey " + escHtml(first) + "," : "Hey,";
+  const flyerImg = flyer
+    ? '<img src="' + escAttr(flyer) + '" alt="Event flyer" style="display:block;width:100%;height:auto;margin:0 0 22px;">'
+    : "";
   const paras = String(message || "").split(/\n\s*\n/).map(function (p) {
     return '<p style="font-size:15px;line-height:1.7;margin:0 0 16px;color:rgba(240,236,227,0.85);">' + escHtml(p).replace(/\n/g, "<br>") + "</p>";
   }).join("");
-  return emailShell('<p style="font-size:16px;line-height:1.6;margin:0 0 16px;color:#f0ece3;">' + hi + "</p>" + paras);
+  return emailShell(flyerImg + '<p style="font-size:16px;line-height:1.6;margin:0 0 16px;color:#f0ece3;">' + hi + "</p>" + paras);
 }
-function inviteText(first, message) {
-  return (first ? "Hey " + first + ",\n\n" : "") + String(message || "") + "\n\n— The Pregame\ninstagram.com/notapregame";
+function inviteText(first, message, flyer) {
+  return (first ? "Hey " + first + ",\n\n" : "") + String(message || "") +
+    (flyer ? "\n\nFlyer: " + flyer : "") + "\n\n— The Pregame\ninstagram.com/notapregame";
 }
 
 // Send an invite to many guests via Resend's batch endpoint (<=100 per call).
-async function sendInvites(env, recipients, subject, message) {
+async function sendInvites(env, recipients, subject, message, flyer) {
   if (!env.RESEND_API_KEY) throw new Error("email not configured");
   const from = env.EMAIL_FROM || "The Pregame <invite@notapregame.com>";
   const subj = (subject || "You're invited — The Pregame").trim();
   let sent = 0;
   for (let i = 0; i < recipients.length; i += 100) {
     const chunk = recipients.slice(i, i + 100).map(function (r) {
-      return { from, to: r.email, subject: subj, html: inviteHtml(r.first, message), text: inviteText(r.first, message) };
+      return { from, to: r.email, subject: subj, html: inviteHtml(r.first, message, flyer), text: inviteText(r.first, message, flyer) };
     });
     const res = await fetch("https://api.resend.com/emails/batch", {
       method: "POST",
@@ -217,8 +231,23 @@ export default {
       return json({ ok: true }, 200, headers);
     }
 
+    // ---- public: serve a stored flyer (email clients fetch these unauthenticated) ----
+    if (request.method === "GET" && url.pathname.startsWith("/flyer/")) {
+      const id = url.pathname.slice("/flyer/".length);
+      if (!/^[0-9a-f-]{36}$/.test(id)) return new Response("Not found", { status: 404, headers });
+      const { value, metadata } = await env.SUBMISSIONS.getWithMetadata(FLYER_PREFIX + id, { type: "arrayBuffer" });
+      if (!value) return new Response("Not found", { status: 404, headers });
+      return new Response(value, {
+        headers: {
+          "Content-Type": (metadata && metadata.ct) || "image/png",
+          "Cache-Control": "public, max-age=31536000, immutable",
+          ...headers,
+        },
+      });
+    }
+
     // ---- everything below requires the admin passcode ----
-    const adminPaths = ["/list", "/batches", "/batch", "/delete", "/clear", "/invite"];
+    const adminPaths = ["/list", "/batches", "/batch", "/delete", "/clear", "/invite", "/flyer"];
     if (adminPaths.includes(url.pathname)) {
       if (!authed(request, env)) return new Response("Unauthorized", { status: 401, headers });
     }
@@ -268,14 +297,29 @@ export default {
       return json({ ok: true, deleted }, 200, headers);
     }
 
+    // ---- admin: store an uploaded flyer image, return its public URL ----
+    if (url.pathname === "/flyer" && request.method === "POST") {
+      const ct = (request.headers.get("Content-Type") || "").split(";")[0].trim().toLowerCase();
+      if (!FLYER_TYPES.includes(ct)) return json({ error: "unsupported image type" }, 400, headers);
+      const bytes = await request.arrayBuffer();
+      if (!bytes.byteLength) return json({ error: "empty file" }, 400, headers);
+      if (bytes.byteLength > FLYER_MAX_BYTES) return json({ error: "file too large (4MB max)" }, 400, headers);
+      const id = crypto.randomUUID();
+      await env.SUBMISSIONS.put(FLYER_PREFIX + id, bytes, { metadata: { ct } });
+      return json({ ok: true, url: url.origin + "/flyer/" + id }, 200, headers);
+    }
+
     if (url.pathname === "/invite" && request.method === "POST") {
       let body; try { body = await request.json(); } catch { return json({ error: "invalid JSON" }, 400, headers); }
       const recipients = (Array.isArray(body.recipients) ? body.recipients : [])
         .filter((r) => r && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(r.email || "")));
       if (!recipients.length) return json({ error: "no valid recipients" }, 400, headers);
       if (!env.RESEND_API_KEY) return json({ error: "email not configured" }, 400, headers);
+      // Only embed flyers this Worker is hosting itself.
+      let flyer = String(body.flyer || "").trim();
+      if (flyer && !flyer.startsWith(url.origin + "/flyer/")) flyer = "";
       try {
-        const sent = await sendInvites(env, recipients, body.subject, body.message);
+        const sent = await sendInvites(env, recipients, body.subject, body.message, flyer);
         return json({ ok: true, sent, total: recipients.length }, 200, headers);
       } catch {
         return json({ error: "send failed" }, 500, headers);

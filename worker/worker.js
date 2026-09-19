@@ -178,6 +178,7 @@ async function syncToMailchimp(env, data, batch) {
     }),
   });
   const tags = [batch, data["tier"]].map((t) => String(t || "").trim()).filter(Boolean);
+  if (/^y/i.test(String(data["SMS Consent"] || "").trim())) tags.push("SMS OK");
   if (tags.length) {
     await fetch(base + "/tags", {
       method: "POST",

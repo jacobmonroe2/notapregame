@@ -97,6 +97,8 @@ th.check, td.check { width:34px; text-align:center; }
 .cmp.wide { width:min(920px,94vw); }
 .cmp .cols { display:grid; grid-template-columns:1fr 1fr; column-gap:2.2rem; }
 .cmp .col-note { font-family:'Space Mono',monospace; font-size:0.55rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--dim); margin-bottom:1rem; }
+.cmp .consent-check { display:flex; align-items:center; gap:0.55rem; font-family:'Space Mono',monospace; font-size:0.55rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--dim); cursor:pointer; margin-bottom:1.1rem; }
+.cmp .consent-check input { width:14px; height:14px; flex:none; accent-color:#e8d84a; cursor:pointer; margin:0; }
 @media (max-width:760px){
   .cmp .cols { grid-template-columns:1fr; }
   .cmp .cols > div + div { border-top:1px solid var(--border); padding-top:1.1rem; }
@@ -188,6 +190,7 @@ th.check, td.check { width:34px; text-align:center; }
           <div><label>Phone number</label><input id="add-phone" type="text"></div>
           <div><label>Instagram handle</label><input id="add-ig" type="text" placeholder="@handle"></div>
         </div>
+        <label class="consent-check"><input type="checkbox" id="add-sms"> They&rsquo;re OK with event texts (SMS)</label>
         <label>Industry / what they do</label>
         <input id="add-industry" type="text">
         <div class="row2">
@@ -521,6 +524,7 @@ th.check, td.check { width:34px; text-align:center; }
       names.map(function(n){ return {value:n, label:n+(n===active?' • active':'')}; }),
       active || names[0]);
     ['add-first','add-last','add-email','add-phone','add-ig','add-industry'].forEach(function(id){ document.getElementById(id).value=''; });
+    document.getElementById('add-sms').checked=false;
     document.getElementById('add-tier').value='General';
     document.getElementById('add-subject').value = "You're invited — The Pregame";
     document.getElementById('add-message').value = defaultInvite();
@@ -541,6 +545,7 @@ th.check, td.check { width:34px; text-align:center; }
       'Phone Number':document.getElementById('add-phone').value.trim(),
       'Instagram Handle':document.getElementById('add-ig').value.trim(),
       'Industry / What You Do':document.getElementById('add-industry').value.trim(),
+      'SMS Consent':document.getElementById('add-sms').checked?'Yes':'',
       tier:document.getElementById('add-tier').value
     };
     var btn=document.getElementById(sendAlso?'add-send':'add-save');

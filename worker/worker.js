@@ -289,7 +289,7 @@ function inviteText(first, message, flyer) {
 // TWILIO_AUTH_TOKEN and TWILIO_FROM are set. "{first}" in the message becomes
 // the guest's first name.
 async function sendTexts(env, recipients, message) {
-  let sent = 0;
+  let sent = 0, firstError = "";
   for (const r of recipients) {
     const body = String(message).replace(/\{first\}/gi, r.first || "there");
     const res = await fetch("https://api.twilio.com/2010-04-01/Accounts/" + env.TWILIO_ACCOUNT_SID + "/Messages.json", {
@@ -300,9 +300,15 @@ async function sendTexts(env, recipients, message) {
       },
       body: new URLSearchParams({ From: env.TWILIO_FROM, To: r.phone, Body: body }).toString(),
     });
-    if (res.ok) sent++;
+    if (res.ok) { sent++; continue; }
+    if (!firstError) {
+      try {
+        const e = await res.json();
+        firstError = String(e.message || e.detail || ("http " + res.status));
+      } catch { firstError = "http " + res.status; }
+    }
   }
-  return sent;
+  return { sent, firstError };
 }
 
 // Send an invite to many guests via Resend's batch endpoint (<=100 per call).
@@ -521,8 +527,8 @@ export default {
       const message = String(body.message || "").trim();
       if (!message) return json({ error: "message required" }, 400, headers);
       try {
-        const sent = await sendTexts(env, recipients, message);
-        return json({ ok: true, sent, total: recipients.length }, 200, headers);
+        const out = await sendTexts(env, recipients, message);
+        return json({ ok: true, sent: out.sent, total: recipients.length, twilioError: out.firstError || undefined }, 200, headers);
       } catch {
         return json({ error: "send failed" }, 500, headers);
       }

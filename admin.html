@@ -468,15 +468,18 @@ th.check, td.check { width:34px; text-align:center; }
     if(!message){ alert('Message is empty.'); return; }
     var btn=document.getElementById('sms-send'); btn.disabled=true; btn.textContent='Sending…';
     var chunks=[]; for(var i=0;i<recips.length;i+=40) chunks.push(recips.slice(i,i+40));
-    var sent=0;
+    var sent=0, twilioErr='';
     chunks.reduce(function(p,chunk){
       return p
         .then(function(){ return api('/sms', { method:'POST', body:JSON.stringify({ recipients:chunk, message:message }) }); })
-        .then(function(res){ sent += (res && res.sent) || 0; });
+        .then(function(res){
+          sent += (res && res.sent) || 0;
+          if(res && res.twilioError && !twilioErr) twilioErr=res.twilioError;
+        });
     }, Promise.resolve())
       .then(function(){
         document.getElementById('sms-overlay').classList.remove('open');
-        alert('Text sent to '+sent+' guest'+(sent===1?'':'s')+'.');
+        alert('Text sent to '+sent+' guest'+(sent===1?'':'s')+'.'+(twilioErr?'\n\nTwilio error on the rest: '+twilioErr:''));
       })
       .catch(function(e){ alert(e && e.message==='unauthorized' ? 'Session expired — log in again.' : 'Send failed — is Twilio set up in the Worker (TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN / TWILIO_FROM)?'); })
       .finally(function(){ btn.disabled=false; btn.textContent='Send'; });

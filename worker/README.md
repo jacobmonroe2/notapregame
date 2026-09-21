@@ -67,6 +67,26 @@ keys), and embedded at the top of the invite email via its public
 `GET /flyer/<id>` URL. No extra setup — it uses the existing KV binding and
 Resend config. To update, paste the newest `worker.js` and **Deploy**.
 
+## Text blasts via Twilio (optional)
+
+The admin page's **Send text** button texts selected guests through Twilio.
+Only guests who ticked SMS consent *and* have a phone number are included;
+`{first}` in the message becomes their first name. The Worker sends nothing
+until all three variables are set.
+
+1. In [Twilio Console](https://console.twilio.com): copy the **Account SID**
+   and **Auth Token** from the dashboard.
+2. Get a sending number — for US guests use a **toll-free number** and submit
+   its (free) verification, or register **A2P 10DLC** for a local number.
+   Unverified numbers get carrier-filtered.
+3. In the Worker → **Settings → Variables and Secrets**, add:
+   - `TWILIO_ACCOUNT_SID` — starts with `AC…`
+   - `TWILIO_AUTH_TOKEN` — tick **Encrypt**
+   - `TWILIO_FROM` — your Twilio number in +1XXXXXXXXXX format
+4. **Deploy.** Trial accounts can only text numbers you've verified in Twilio;
+   upgrade to text real guests. Consider a usage alert in Twilio
+   (Monitor → Usage triggers) as a spending guardrail.
+
 ## Mailchimp sync (optional)
 
 Every sign-up (and every guest added by hand from /admin) is also added as a

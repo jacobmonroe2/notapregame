@@ -10,6 +10,7 @@
  *   POST  /delete      [admin] { key }   — delete one submission.
  *   POST  /clear       [admin] { batch } — delete every submission in a batch.
  *   POST  /invite      [admin] { recipients, subject, message, flyer? } — email invites.
+ *   POST  /sms         [admin] { recipients, message } — text guests via Twilio.
  *   POST  /flyer       [admin] raw image body — store a flyer, returns { url }.
  *   GET   /flyer/<id>  Serve a stored flyer (public; email clients fetch these).
  *   OPTIONS *          CORS preflight.
@@ -26,6 +27,7 @@ const DEFAULT_BATCH = "Unsorted";
 const FLYER_PREFIX = "__flyer__";      // KV keys for stored flyer images
 const FLYER_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
 const FLYER_MAX_BYTES = 4 * 1024 * 1024;
+const SMS_MAX_PER_CALL = 40;           // one Twilio subrequest per text; Workers allow 50/invocation
 
 function cors(request, env) {
   const origin = request.headers.get("Origin") || "";
@@ -283,6 +285,26 @@ function inviteText(first, message, flyer) {
     (flyer ? "\n\nFlyer: " + flyer : "") + "\n\n— The Pregame\ninstagram.com/notapregame";
 }
 
+// Send a text to each recipient via Twilio. No-op until TWILIO_ACCOUNT_SID,
+// TWILIO_AUTH_TOKEN and TWILIO_FROM are set. "{first}" in the message becomes
+// the guest's first name.
+async function sendTexts(env, recipients, message) {
+  let sent = 0;
+  for (const r of recipients) {
+    const body = String(message).replace(/\{first\}/gi, r.first || "there");
+    const res = await fetch("https://api.twilio.com/2010-04-01/Accounts/" + env.TWILIO_ACCOUNT_SID + "/Messages.json", {
+      method: "POST",
+      headers: {
+        "Authorization": "Basic " + btoa(env.TWILIO_ACCOUNT_SID + ":" + env.TWILIO_AUTH_TOKEN),
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({ From: env.TWILIO_FROM, To: r.phone, Body: body }).toString(),
+    });
+    if (res.ok) sent++;
+  }
+  return sent;
+}
+
 // Send an invite to many guests via Resend's batch endpoint (<=100 per call).
 async function sendInvites(env, recipients, subject, message, flyer) {
   if (!env.RESEND_API_KEY) throw new Error("email not configured");
@@ -342,7 +364,7 @@ export default {
     }
 
     // ---- everything below requires the admin passcode ----
-    const adminPaths = ["/list", "/batches", "/batch", "/add", "/delete", "/clear", "/invite", "/flyer", "/migrate", "/mcsms"];
+    const adminPaths = ["/list", "/batches", "/batch", "/add", "/delete", "/clear", "/invite", "/sms", "/flyer", "/migrate", "/mcsms"];
     if (adminPaths.includes(url.pathname)) {
       if (!authed(request, env)) return new Response("Unauthorized", { status: 401, headers });
     }
@@ -480,6 +502,26 @@ export default {
       if (flyer && !flyer.startsWith(url.origin + "/flyer/")) flyer = "";
       try {
         const sent = await sendInvites(env, recipients, body.subject, body.message, flyer);
+        return json({ ok: true, sent, total: recipients.length }, 200, headers);
+      } catch {
+        return json({ error: "send failed" }, 500, headers);
+      }
+    }
+
+    // Text guests via Twilio. The admin page sends only guests who ticked SMS
+    // consent, in chunks small enough for the Workers subrequest limit.
+    if (url.pathname === "/sms" && request.method === "POST") {
+      let body; try { body = await request.json(); } catch { return json({ error: "invalid JSON" }, 400, headers); }
+      if (!env.TWILIO_ACCOUNT_SID || !env.TWILIO_AUTH_TOKEN || !env.TWILIO_FROM) return json({ error: "sms not configured" }, 400, headers);
+      const recipients = (Array.isArray(body.recipients) ? body.recipients : [])
+        .map((r) => r && { phone: toE164(r.phone), first: String(r.first || "").trim() })
+        .filter((r) => r && r.phone);
+      if (!recipients.length) return json({ error: "no valid phone numbers" }, 400, headers);
+      if (recipients.length > SMS_MAX_PER_CALL) return json({ error: "too many recipients per call (" + SMS_MAX_PER_CALL + " max)" }, 400, headers);
+      const message = String(body.message || "").trim();
+      if (!message) return json({ error: "message required" }, 400, headers);
+      try {
+        const sent = await sendTexts(env, recipients, message);
         return json({ ok: true, sent, total: recipients.length }, 200, headers);
       } catch {
         return json({ error: "send failed" }, 500, headers);

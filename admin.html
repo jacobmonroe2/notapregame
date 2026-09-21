@@ -152,6 +152,7 @@ th.check, td.check { width:34px; text-align:center; }
       <select class="ctl" id="tier"><option value="">All tiers</option></select>
       <button class="ctl" id="add-guest">+ Add guest</button>
       <button class="ctl primary" id="send-invite">Send invite</button>
+      <button class="ctl" id="send-sms">Send text</button>
       <button class="ctl" id="csv">Export CSV</button>
       <button class="ctl" id="refresh">Refresh</button>
       <button class="ctl" id="logout">Log out</button>
@@ -224,6 +225,21 @@ th.check, td.check { width:34px; text-align:center; }
   </div>
 </div>
 
+<!-- SEND TEXT (Twilio SMS to guests who agreed to texts) -->
+<div class="cmp-overlay" id="sms-overlay">
+  <div class="cmp">
+    <h2>Send text</h2>
+    <p class="who" id="sms-who"></p>
+    <label>Message</label>
+    <textarea id="sms-message" style="min-height:140px;"></textarea>
+    <p class="flyer-note" id="sms-note">{first} becomes the guest&rsquo;s first name. Only guests with a phone number who agreed to texts are included.</p>
+    <div class="cmp-row">
+      <button class="ctl" id="sms-cancel">Cancel</button>
+      <button class="ctl primary" id="sms-send">Send</button>
+    </div>
+  </div>
+</div>
+
 <div class="cmp-overlay" id="cmp-overlay">
   <div class="cmp">
     <h2>Send invite</h2>
@@ -275,7 +291,7 @@ th.check, td.check { width:34px; text-align:center; }
   /* ── data layer (live worker, or in-memory demo) ── */
   var demoState={ active:'Vol. 25', rows:[
     {_key:'d1', batch:'Vol. 25', submittedAt:'2026-06-19 18:42', tier:'General', 'First Name':'Ava','Last Name':'Thompson','Email Address':'ava@example.com','Phone Number':'+1 (212) 555-0182','Instagram Handle':'@avathompson','Industry / What You Do':'Finance'},
-    {_key:'d2', batch:'Vol. 25', submittedAt:'2026-06-19 18:51', tier:'Friends & Family', 'First Name':'Marcus','Last Name':'Lee','Email Address':'marcus@example.com','Phone Number':'+1 (646) 555-0143','Instagram Handle':'@marcuslee','Industry / What You Do':'Tech'},
+    {_key:'d2', batch:'Vol. 25', submittedAt:'2026-06-19 18:51', tier:'Friends & Family', 'First Name':'Marcus','Last Name':'Lee','Email Address':'marcus@example.com','Phone Number':'+1 (646) 555-0143','Instagram Handle':'@marcuslee','Industry / What You Do':'Tech','SMS Consent':'Yes'},
     {_key:'d3', batch:'Vol. 24', submittedAt:'2026-05-28 21:03', tier:'General', 'First Name':'Sofia','Last Name':'Ramirez','Email Address':'sofia@example.com','Phone Number':'+1 (917) 555-0119','Instagram Handle':'@sofiaramirez','Industry / What You Do':'Media'}
   ]};
 
@@ -307,6 +323,7 @@ th.check, td.check { width:34px; text-align:center; }
     if(path==='/delete'){ demoState.rows=demoState.rows.filter(function(r){return r._key!==body.key;}); return Promise.resolve({ok:true}); }
     if(path==='/clear'){ demoState.rows=demoState.rows.filter(function(r){return r.batch!==body.batch;}); return Promise.resolve({ok:true}); }
     if(path==='/invite'){ return Promise.resolve({ok:true, sent:(body.recipients||[]).length}); }
+    if(path==='/sms'){ return Promise.resolve({ok:true, sent:(body.recipients||[]).length}); }
     return Promise.resolve({});
   }
 
@@ -411,6 +428,8 @@ th.check, td.check { width:34px; text-align:center; }
   function updateInviteBtn(){
     var n=selCount(), b=document.getElementById('send-invite');
     if(b) b.textContent = n ? ('Send invite ('+n+')') : 'Send invite';
+    var s=document.getElementById('send-sms');
+    if(s) s.textContent = n ? ('Send text ('+n+')') : 'Send text';
   }
   function recipientsForInvite(){
     var keys = selCount() ? Object.keys(selected) : filtered().map(function(r){return r._key;});
@@ -419,6 +438,50 @@ th.check, td.check { width:34px; text-align:center; }
       .map(function(r){ return { email:String(r['Email Address']||'').trim(), first:String(r['First Name']||'').trim() }; })
       .filter(function(r){ return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(r.email); });
   }
+  /* ── texts (Twilio) ── */
+  function recipientsForSms(){
+    var keys = selCount() ? Object.keys(selected) : filtered().map(function(r){return r._key;});
+    var byKey={}; rows.forEach(function(r){ byKey[r._key]=r; });
+    return keys.map(function(k){ return byKey[k]; }).filter(Boolean)
+      .filter(function(r){ return /^y/i.test(String(r['SMS Consent']||'').trim()); })
+      .map(function(r){ return { phone:String(r['Phone Number']||'').trim(), first:String(r['First Name']||'').trim() }; })
+      .filter(function(r){ return r.phone.replace(/\D/g,'').length>=10; });
+  }
+  function openSms(){
+    var recips=recipientsForSms();
+    if(!recips.length){ alert('No guests in that selection have both a phone number and SMS consent.'); return; }
+    var ev = active || view || 'the event';
+    document.getElementById('sms-who').textContent = 'To '+recips.length+' guest'+(recips.length===1?'':'s')+(selCount()?' selected':' shown');
+    document.getElementById('sms-message').value = "Hey {first} — you're in for "+ev+". [date], [location]. Reply STOP to opt out.";
+    updateSmsNote();
+    document.getElementById('sms-overlay').classList.add('open');
+  }
+  function updateSmsNote(){
+    var len=document.getElementById('sms-message').value.length;
+    document.getElementById('sms-note').textContent =
+      '{first} becomes the guest’s first name. Only guests with a phone number who agreed to texts are included. '+
+      len+' characters'+(len>160?' — over 160, sends as multiple texts':'')+'.';
+  }
+  function sendSms(){
+    var recips=recipientsForSms(); if(!recips.length) return;
+    var message=document.getElementById('sms-message').value.trim();
+    if(!message){ alert('Message is empty.'); return; }
+    var btn=document.getElementById('sms-send'); btn.disabled=true; btn.textContent='Sending…';
+    var chunks=[]; for(var i=0;i<recips.length;i+=40) chunks.push(recips.slice(i,i+40));
+    var sent=0;
+    chunks.reduce(function(p,chunk){
+      return p
+        .then(function(){ return api('/sms', { method:'POST', body:JSON.stringify({ recipients:chunk, message:message }) }); })
+        .then(function(res){ sent += (res && res.sent) || 0; });
+    }, Promise.resolve())
+      .then(function(){
+        document.getElementById('sms-overlay').classList.remove('open');
+        alert('Text sent to '+sent+' guest'+(sent===1?'':'s')+'.');
+      })
+      .catch(function(e){ alert(e && e.message==='unauthorized' ? 'Session expired — log in again.' : 'Send failed — is Twilio set up in the Worker (TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN / TWILIO_FROM)?'); })
+      .finally(function(){ btn.disabled=false; btn.textContent='Send'; });
+  }
+
   function openCompose(){
     var recips=recipientsForInvite();
     if(!recips.length){ alert('No valid email addresses in that selection.'); return; }
@@ -611,6 +674,11 @@ th.check, td.check { width:34px; text-align:center; }
     document.getElementById(prefix+'-file').addEventListener('change', function(){ onFlyerPicked(prefix, this); });
     document.getElementById(prefix+'-remove').addEventListener('click', function(){ clearFlyer(prefix); });
   });
+  document.getElementById('send-sms').addEventListener('click', openSms);
+  document.getElementById('sms-message').addEventListener('input', updateSmsNote);
+  document.getElementById('sms-cancel').addEventListener('click', function(){ document.getElementById('sms-overlay').classList.remove('open'); });
+  document.getElementById('sms-send').addEventListener('click', sendSms);
+  document.getElementById('sms-overlay').addEventListener('click', function(e){ if(e.target.id==='sms-overlay') this.classList.remove('open'); });
   document.getElementById('cmp-cancel').addEventListener('click', function(){ document.getElementById('cmp-overlay').classList.remove('open'); });
   document.getElementById('cmp-send').addEventListener('click', sendInvite);
   document.getElementById('cmp-overlay').addEventListener('click', function(e){ if(e.target.id==='cmp-overlay') this.classList.remove('open'); });
